@@ -65,6 +65,7 @@ namespace lve {
         };
 
 
+        LveModel(LveDevice& device, MODEL_TYPE model_type);
         LveModel(LveDevice& device, const std::string& layout_info_file);
         ~LveModel();
 
@@ -78,22 +79,25 @@ namespace lve {
         void drawForFace(VkCommandBuffer commandBuffer);
         void drawForEdge(VkCommandBuffer commandBuffer);
 
+
     private:
+        void createBuffers();
+        void destroyBuffers();
         void createVertexBuffers(const std::vector<Vertex>& vertices);
         void createIndexBuffers(const std::vector<uint32_t>& indices, VkBuffer & buffer, VkDeviceMemory & memory);
 
         LveDevice& lveDevice;
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
-        uint32_t vertexCount;
+        VkBuffer vertexBuffer{};
+        VkDeviceMemory vertexBufferMemory{};
+        uint32_t vertexCount{};
 
-        VkBuffer indexBufferForFace;
-        VkDeviceMemory indexBufferMemoryForFace;
+        VkBuffer indexBufferForFace{};
+        VkDeviceMemory indexBufferMemoryForFace{};
         
-        VkBuffer indexBufferForEdge;
-        VkDeviceMemory indexBufferMemoryForEdge;
+        VkBuffer indexBufferForEdge{};
+        VkDeviceMemory indexBufferMemoryForEdge{};
         
-        MODEL_TYPE model_type;
+        MODEL_TYPE model_type{};
 
     private:
         //std::string layout_info_file;

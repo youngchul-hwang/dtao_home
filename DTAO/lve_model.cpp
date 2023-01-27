@@ -14,29 +14,18 @@ inline float coord_normalize(float in_value, float move, float scale) {
 }
 
 namespace lve {
+    LveModel::LveModel(LveDevice& device, MODEL_TYPE type) : lveDevice{ device }, model_type(type) {
+    }
+
+    
 
     LveModel::LveModel(LveDevice& device, const std::string& layout_info_file) : lveDevice{ device } {
         loadRenderingData(layout_info_file);
-        std::cout << "\nHere 1>\n";
-        createVertexBuffers(this->vertices);
-        std::cout << "\nHere 2>\n";
-        std::cout << "\tindices_face size : " << this->indices_face.size() << std::endl;
-        std::cout << "\tindices_edge size : " << this->indices_edge.size() << std::endl;
-        createIndexBuffers(this->indices_face, this->indexBufferForFace, this->indexBufferMemoryForFace);
-        std::cout << "\nHere 3>\n";
-        createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
+        createBuffers();       
     }
 
     LveModel::~LveModel() {
-        vkDestroyBuffer(lveDevice.device(), vertexBuffer, nullptr);
-        vkFreeMemory(lveDevice.device(), vertexBufferMemory, nullptr);
-
-        vkDestroyBuffer(lveDevice.device(), indexBufferForFace, nullptr);
-        vkFreeMemory(lveDevice.device(), indexBufferMemoryForFace, nullptr);
-
-        vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
-        vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
-
+        destroyBuffers();
 
         this->rects.clear();
         this->cubes.clear();
@@ -45,6 +34,42 @@ namespace lve {
         this->indices_edge.clear();
     }
 
+    void LveModel::createBuffers() {
+        createVertexBuffers(this->vertices);
+
+        if (this->model_type == MODEL_TYPE_EDGE_ONLY) {
+            createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
+        }
+        else if (this->model_type == MODEL_TYPE_FACE_ONLY) {
+            createIndexBuffers(this->indices_face, this->indexBufferForFace, this->indexBufferMemoryForFace);
+        }
+        else if (this->model_type == MODEL_TYPE_FACE_EDGE) {
+            createIndexBuffers(this->indices_face, this->indexBufferForFace, this->indexBufferMemoryForFace);
+            createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
+        }
+    }
+
+    void LveModel::destroyBuffers() {
+        vkDestroyBuffer(lveDevice.device(), vertexBuffer, nullptr);
+        vkFreeMemory(lveDevice.device(), vertexBufferMemory, nullptr);
+
+        if (this->model_type == MODEL_TYPE_EDGE_ONLY) {
+            vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
+        }
+        else if (this->model_type == MODEL_TYPE_FACE_ONLY) {
+            vkDestroyBuffer(lveDevice.device(), indexBufferForFace, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForFace, nullptr);
+        }
+        else if (this->model_type == MODEL_TYPE_FACE_EDGE) {
+            vkDestroyBuffer(lveDevice.device(), indexBufferForFace, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForFace, nullptr);
+
+            vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
+        }
+
+    }
     void LveModel::createVertexBuffers(const std::vector<Vertex>& vertices) {
         vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
@@ -81,7 +106,7 @@ namespace lve {
         const std::vector<uint32_t>& indices,
         VkBuffer& buffer,
         VkDeviceMemory& memory) {
-
+        assert( !indices.empty() && "Index size can't be zero");
         VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
         std::cout << "CreateIndexBuffers :: indices size : " << indices.size() << std::endl;
