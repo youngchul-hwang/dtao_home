@@ -7,6 +7,7 @@
 #include <stdexcept>
 
 int main() {
+
   lve::FirstApp app{};
 
   try {

@@ -100,12 +100,6 @@
     <None Include="shaders\simple_shader.vert">
       <Filter>소스 파일\shaders</Filter>
     </None>
-    <None Include="shaders\simple_shader.frag.spv">
-      <Filter>소스 파일\shaders</Filter>
-    </None>
-    <None Include="shaders\simple_shader.vert.spv">
-      <Filter>소스 파일\shaders</Filter>
-    </None>
     <None Include="layout_input_data.csv">
       <Filter>리소스 파일</Filter>
     </None>
@@ -113,6 +107,12 @@
       <Filter>소스 파일\shaders</Filter>
     </None>
     <None Include="shaders\simple_shader_edge.vert">
+      <Filter>소스 파일\shaders</Filter>
+    </None>
+    <None Include="shaders\simple_shader_pex.frag">
+      <Filter>소스 파일\shaders</Filter>
+    </None>
+    <None Include="shaders\simple_shader_pex.vert">
       <Filter>소스 파일\shaders</Filter>
     </None>
   </ItemGroup>

@@ -14,9 +14,9 @@
 #include <iostream>
 
 typedef enum MODEL_TYPE {
-    MODEL_TYPE_FACE_ONLY = 0,
-    MODEL_TYPE_EDGE_ONLY = 1,
-    MODEL_TYPE_FACE_EDGE = 2,
+    MODEL_TYPE_LAYOUT = 0,
+    MODEL_TYPE_PEX,
+    MODEL_TYPE_AXIS,
     MODEL_TYPE_DEFAULT = 99
 } MODEL_TYPE;
 
@@ -65,10 +65,10 @@ namespace lve {
         };
 
 
-        LveModel(LveDevice& device, MODEL_TYPE model_type);
-        LveModel(LveDevice& device, const std::string& layout_info_file);
+        LveModel(LveDevice& device, MODEL_TYPE model_type, const std::string& layout_info_file = "");
         ~LveModel();
 
+        LveModel() = delete;
         LveModel(const LveModel&) = delete;
         LveModel& operator=(const LveModel&) = delete;
 
@@ -112,6 +112,8 @@ namespace lve {
     public:
         //void setLayoutInfoFile(const std::string file_path) { this->layout_info_file = file_path; }
         void loadRenderingData(const std::string file_path);
+        void loadPEXRenderingData(const std::string file_path);
+        void makeAxisData();
 
         void makeRectFromLayoutInfo( const std::string& file_path );
         void makeCubeFromLayoutRect();
@@ -121,5 +123,6 @@ namespace lve {
         void makeIndicesForEdgeLine();
                   
         MODEL_TYPE getModelType() { return this->model_type; }
+        
     };
 }  // namespace lve
