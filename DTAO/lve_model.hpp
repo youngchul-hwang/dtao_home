@@ -113,7 +113,7 @@ namespace lve {
         //void setLayoutInfoFile(const std::string file_path) { this->layout_info_file = file_path; }
         void loadRenderingData(const std::string file_path);
         void loadPEXRenderingData(const std::string file_path);
-        void makeAxisData();
+        void makeAxisData(const float axis_length = (2.0f) );
 
         void makeRectFromLayoutInfo( const std::string& file_path );
         void makeCubeFromLayoutRect();

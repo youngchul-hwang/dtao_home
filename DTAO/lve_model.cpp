@@ -211,16 +211,16 @@ namespace lve {
         this->makeIndicesForFaceTriangle();
     }
 
-    void LveModel::makeAxisData() {
+    void LveModel::makeAxisData(const float axis_length) {
         Vertex temp_vertex;
         this->vertices.clear();
         this->vertices = {
-            { { -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
-            { { 2.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
-            { { 0.0f, -2.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
-            { { 0.0f, 2.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } },
-            { { 0.0f, 0.0f, -2.0f }, { 1.0f, 1.0f, 1.0f } },
-            { { 0.0f, 0.0f, 2.0f }, { 0.0f, 0.0f, 1.0f } }
+            { { -axis_length, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
+            { {  axis_length, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+            { { 0.0f, -axis_length, 0.0f }, { 1.0f, 1.0f, 1.0f } },
+            { { 0.0f,  axis_length, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+            { { 0.0f, 0.0f, -axis_length }, { 1.0f, 1.0f, 1.0f } },
+            { { 0.0f, 0.0f,  axis_length }, { 0.0f, 0.0f, 1.0f } }
         };
 
         std::cout << "\nMake Indices For Axis Line\n";
