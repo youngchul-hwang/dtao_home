@@ -27,7 +27,7 @@ namespace lve {
         LveCamera camera{};
 
         camera.setViewTarget(
-            glm::vec3(2.0f,2.0f,2.0f), 
+            glm::vec3(1.0f,1.0f,1.0f), 
             glm::vec3(0.0f, 0.0f, 0.0f), 
             glm::vec3(0.0f, 0.0f, 1.0f));
         
@@ -64,20 +64,49 @@ namespace lve {
     }
 
     void FirstApp::loadGameObjects() {
-        std::string layout_info_file_path = "layout_input_data.csv";
-        std::shared_ptr<LveModel> lveModel = std::make_unique<LveModel>(this->lveDevice, layout_info_file_path);
-            
+
+        //PEX model
+        
+        std::string pex_info_file_path = "Data/layout_input_data.csv";
+        std::shared_ptr<LveModel> pex_model
+            = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_PEX, pex_info_file_path);
         auto cube = LveGameObject::createGameObject();
-        cube.model = lveModel;
+        cube.model = pex_model;
+        cube.transform.translation = { 0.f, 0.f, 0.0f };
+        cube.transform.scale = { 0.95f, 0.95f, 0.95f };
+        gameObjects.push_back(std::move(cube));
+
+        cube = LveGameObject::createGameObject();
+        cube.model = pex_model;
+        cube.transform.translation = { -0.5f, 0.0f, 0.0f };
+        cube.transform.scale = { 0.95f, 0.95f, 0.95f };
+        gameObjects.push_back(std::move(cube));
+
+        //Layout model
+        std::string layout_info_file_path = "Data/layout_input_data.csv";
+        std::shared_ptr<LveModel> layout_model
+            = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_LAYOUT, layout_info_file_path);    
+        cube = LveGameObject::createGameObject();
+        cube.model = layout_model;
         cube.transform.translation = { 0.0f, 0.0f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
-        
-        //*
+
         cube = LveGameObject::createGameObject();
-        cube.model = lveModel;
-        cube.transform.translation = { 1.0f, 0.0f, 0.0f };
-        cube.transform.scale = { 0.5f, 0.5f, 0.5f };
+        cube.model = layout_model;
+        cube.transform.translation = { -0.5f, 0.0f, 0.0f };
+        cube.transform.scale = { 1.0f, 1.0f, 1.0f };
+        gameObjects.push_back(std::move(cube));
+        
+     
+
+        //Axis model
+        std::shared_ptr<LveModel> axis_model
+            = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_AXIS);
+        cube = LveGameObject::createGameObject();
+        cube.model = axis_model;
+        cube.transform.translation = { 0.0f, 0.0f, 0.0f };
+        cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
         //*/
     }

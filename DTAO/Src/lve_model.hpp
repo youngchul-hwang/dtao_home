@@ -14,9 +14,9 @@
 #include <iostream>
 
 typedef enum MODEL_TYPE {
-    MODEL_TYPE_FACE_ONLY = 0,
-    MODEL_TYPE_EDGE_ONLY = 1,
-    MODEL_TYPE_FACE_EDGE = 2,
+    MODEL_TYPE_LAYOUT = 0,
+    MODEL_TYPE_PEX,
+    MODEL_TYPE_AXIS,
     MODEL_TYPE_DEFAULT = 99
 } MODEL_TYPE;
 
@@ -65,9 +65,10 @@ namespace lve {
         };
 
 
-        LveModel(LveDevice& device, const std::string& layout_info_file);
+        LveModel(LveDevice& device, MODEL_TYPE model_type, const std::string& layout_info_file = "");
         ~LveModel();
 
+        LveModel() = delete;
         LveModel(const LveModel&) = delete;
         LveModel& operator=(const LveModel&) = delete;
 
@@ -78,22 +79,25 @@ namespace lve {
         void drawForFace(VkCommandBuffer commandBuffer);
         void drawForEdge(VkCommandBuffer commandBuffer);
 
+
     private:
+        void createBuffers();
+        void destroyBuffers();
         void createVertexBuffers(const std::vector<Vertex>& vertices);
         void createIndexBuffers(const std::vector<uint32_t>& indices, VkBuffer & buffer, VkDeviceMemory & memory);
 
         LveDevice& lveDevice;
-        VkBuffer vertexBuffer;
-        VkDeviceMemory vertexBufferMemory;
-        uint32_t vertexCount;
+        VkBuffer vertexBuffer{};
+        VkDeviceMemory vertexBufferMemory{};
+        uint32_t vertexCount{};
 
-        VkBuffer indexBufferForFace;
-        VkDeviceMemory indexBufferMemoryForFace;
+        VkBuffer indexBufferForFace{};
+        VkDeviceMemory indexBufferMemoryForFace{};
         
-        VkBuffer indexBufferForEdge;
-        VkDeviceMemory indexBufferMemoryForEdge;
+        VkBuffer indexBufferForEdge{};
+        VkDeviceMemory indexBufferMemoryForEdge{};
         
-        MODEL_TYPE model_type;
+        MODEL_TYPE model_type{};
 
     private:
         //std::string layout_info_file;
@@ -108,6 +112,8 @@ namespace lve {
     public:
         //void setLayoutInfoFile(const std::string file_path) { this->layout_info_file = file_path; }
         void loadRenderingData(const std::string file_path);
+        void loadPEXRenderingData(const std::string file_path);
+        void makeAxisData(const float axis_length = (2.0f) );
 
         void makeRectFromLayoutInfo( const std::string& file_path );
         void makeCubeFromLayoutRect();
@@ -117,5 +123,6 @@ namespace lve {
         void makeIndicesForEdgeLine();
                   
         MODEL_TYPE getModelType() { return this->model_type; }
+        
     };
 }  // namespace lve

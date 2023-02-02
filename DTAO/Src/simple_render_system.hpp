@@ -29,6 +29,7 @@ namespace lve {
         void createPipelineLayout(VkPipelineLayout & pipeline_layout);
         void createPipelineForFace(VkRenderPass renderPass);
         void createPipelineForEdge(VkRenderPass renderPass);
+        void createPipelineForPEX(VkRenderPass renderPass);
 
         LveDevice& lveDevice;
 
@@ -37,5 +38,8 @@ namespace lve {
 
         std::unique_ptr<LvePipeline> lvePipelineForEdge;
         VkPipelineLayout pipelineLayoutForEdge;
+
+        std::unique_ptr<LvePipeline> lvePipelineForPEX;
+        VkPipelineLayout pipelineLayoutForPEX;
     };
 }  // namespace lve

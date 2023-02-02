@@ -135,41 +135,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="first_app.cpp" />
-    <ClCompile Include="keyboard_movement_controller.cpp" />
-    <ClCompile Include="lve_camera.cpp" />
-    <ClCompile Include="lve_model.cpp" />
-    <ClCompile Include="lve_pipeline.cpp" />
-    <ClCompile Include="lve_renderer.cpp" />
-    <ClCompile Include="lve_swap_chain.cpp" />
-    <ClCompile Include="lve_window.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="lve_device.cpp" />
-    <ClCompile Include="simple_render_system.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="first_app.hpp" />
-    <ClInclude Include="keyboard_movement_controller.hpp" />
-    <ClInclude Include="lve_camera.hpp" />
-    <ClInclude Include="lve_game_object.hpp" />
-    <ClInclude Include="lve_model.hpp" />
-    <ClInclude Include="lve_pipeline.hpp" />
-    <ClInclude Include="lve_renderer.hpp" />
-    <ClInclude Include="lve_swap_chain.hpp" />
-    <ClInclude Include="lve_window.hpp" />
-    <ClInclude Include="lve_device.hpp" />
-    <ClInclude Include="rapidcsv.h" />
-    <ClInclude Include="simple_render_system.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="layout_input_data.csv" />
+    <None Include="Data\layout_input_data.csv" />
+    <None Include="Data\layout_input_data_new_format.csv" />
+    <None Include="Data\MVP_PEX_RC_r1_0130.csv" />
     <None Include="shaders\compile.bat" />
     <None Include="shaders\simple_shader.frag" />
-    <None Include="shaders\simple_shader.frag.spv" />
     <None Include="shaders\simple_shader.vert" />
-    <None Include="shaders\simple_shader.vert.spv" />
     <None Include="shaders\simple_shader_edge.frag" />
     <None Include="shaders\simple_shader_edge.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\first_app.cpp" />
+    <ClCompile Include="Src\keyboard_movement_controller.cpp" />
+    <ClCompile Include="Src\LayoutPEXData.cpp" />
+    <ClCompile Include="Src\lve_camera.cpp" />
+    <ClCompile Include="Src\lve_device.cpp" />
+    <ClCompile Include="Src\lve_model.cpp" />
+    <ClCompile Include="Src\lve_pipeline.cpp" />
+    <ClCompile Include="Src\lve_renderer.cpp" />
+    <ClCompile Include="Src\lve_swap_chain.cpp" />
+    <ClCompile Include="Src\lve_window.cpp" />
+    <ClCompile Include="Src\main.cpp" />
+    <ClCompile Include="Src\simple_render_system.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Src\first_app.hpp" />
+    <ClInclude Include="Src\keyboard_movement_controller.hpp" />
+    <ClInclude Include="Src\LayoutPEXData.h" />
+    <ClInclude Include="Src\lve_camera.hpp" />
+    <ClInclude Include="Src\lve_device.hpp" />
+    <ClInclude Include="Src\lve_game_object.hpp" />
+    <ClInclude Include="Src\lve_model.hpp" />
+    <ClInclude Include="Src\lve_pipeline.hpp" />
+    <ClInclude Include="Src\lve_renderer.hpp" />
+    <ClInclude Include="Src\lve_swap_chain.hpp" />
+    <ClInclude Include="Src\lve_window.hpp" />
+    <ClInclude Include="Src\rapidcsv.h" />
+    <ClInclude Include="Src\simple_render_system.hpp" />
+    <ClInclude Include="Src\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -14,29 +14,24 @@ inline float coord_normalize(float in_value, float move, float scale) {
 }
 
 namespace lve {
+    
+    LveModel::LveModel(LveDevice& device, MODEL_TYPE type, const std::string& layout_info_file) 
+        : lveDevice{ device }, model_type(type) {
+        if (type == MODEL_TYPE::MODEL_TYPE_LAYOUT && !layout_info_file.empty()) {
+            loadRenderingData(layout_info_file);
+        }
+        else if (type == MODEL_TYPE::MODEL_TYPE_AXIS) {
+            makeAxisData();
+        }
+        else if (type == MODEL_TYPE::MODEL_TYPE_PEX && !layout_info_file.empty()) {
+            loadPEXRenderingData(layout_info_file);
+        }
 
-    LveModel::LveModel(LveDevice& device, const std::string& layout_info_file) : lveDevice{ device } {
-        loadRenderingData(layout_info_file);
-        std::cout << "\nHere 1>\n";
-        createVertexBuffers(this->vertices);
-        std::cout << "\nHere 2>\n";
-        std::cout << "\tindices_face size : " << this->indices_face.size() << std::endl;
-        std::cout << "\tindices_edge size : " << this->indices_edge.size() << std::endl;
-        createIndexBuffers(this->indices_face, this->indexBufferForFace, this->indexBufferMemoryForFace);
-        std::cout << "\nHere 3>\n";
-        createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
+        createBuffers();       
     }
 
     LveModel::~LveModel() {
-        vkDestroyBuffer(lveDevice.device(), vertexBuffer, nullptr);
-        vkFreeMemory(lveDevice.device(), vertexBufferMemory, nullptr);
-
-        vkDestroyBuffer(lveDevice.device(), indexBufferForFace, nullptr);
-        vkFreeMemory(lveDevice.device(), indexBufferMemoryForFace, nullptr);
-
-        vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
-        vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
-
+        destroyBuffers();
 
         this->rects.clear();
         this->cubes.clear();
@@ -45,6 +40,41 @@ namespace lve {
         this->indices_edge.clear();
     }
 
+    void LveModel::createBuffers() {
+        createVertexBuffers(this->vertices);
+
+        if (this->model_type == MODEL_TYPE::MODEL_TYPE_LAYOUT) {
+            createIndexBuffers(this->indices_face, this->indexBufferForFace, this->indexBufferMemoryForFace);
+            createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
+        }
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_AXIS) {
+            createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
+        }
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX) {
+            createIndexBuffers(this->indices_face, this->indexBufferForFace, this->indexBufferMemoryForFace);
+        }
+    }
+
+    void LveModel::destroyBuffers() {
+        vkDestroyBuffer(lveDevice.device(), vertexBuffer, nullptr);
+        vkFreeMemory(lveDevice.device(), vertexBufferMemory, nullptr);
+       
+        if (this->model_type == MODEL_TYPE::MODEL_TYPE_LAYOUT) {
+            vkDestroyBuffer(lveDevice.device(), indexBufferForFace, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForFace, nullptr);
+            vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
+        }
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_AXIS) {
+            vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
+        }
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX) {
+            vkDestroyBuffer(lveDevice.device(), indexBufferForFace, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForFace, nullptr);
+        }
+
+    }
     void LveModel::createVertexBuffers(const std::vector<Vertex>& vertices) {
         vertexCount = static_cast<uint32_t>(vertices.size());
         assert(vertexCount >= 3 && "Vertex count must be at least 3");
@@ -81,7 +111,7 @@ namespace lve {
         const std::vector<uint32_t>& indices,
         VkBuffer& buffer,
         VkDeviceMemory& memory) {
-
+        assert( !indices.empty() && "Index size can't be zero");
         VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
 
         std::cout << "CreateIndexBuffers :: indices size : " << indices.size() << std::endl;
@@ -174,9 +204,41 @@ namespace lve {
         this->makeIndicesForEdgeLine();
     }
 
+    void LveModel::loadPEXRenderingData(const std::string file_path) {
+        this->makeRectFromLayoutInfo(file_path);
+        this->makeCubeFromLayoutRect();
+        this->makeVerticesFromCube();
+        this->makeIndicesForFaceTriangle();
+    }
+
+    void LveModel::makeAxisData(const float axis_length) {
+        Vertex temp_vertex;
+        this->vertices.clear();
+        this->vertices = {
+            { { -axis_length, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } },
+            { {  axis_length, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } },
+            { { 0.0f, -axis_length, 0.0f }, { 1.0f, 1.0f, 1.0f } },
+            { { 0.0f,  axis_length, 0.0f }, { 0.0f, 1.0f, 0.0f } },
+            { { 0.0f, 0.0f, -axis_length }, { 1.0f, 1.0f, 1.0f } },
+            { { 0.0f, 0.0f,  axis_length }, { 0.0f, 0.0f, 1.0f } }
+        };
+
+        std::cout << "\nMake Indices For Axis Line\n";
+        vector<uint32_t>& indices = this->indices_edge;
+        indices.clear();
+        indices.push_back(0); 
+        indices.push_back(1);
+        indices.push_back(2); 
+        indices.push_back(3);
+        indices.push_back(4); 
+        indices.push_back(5);
+        std::cout << "\tEdge Indices count : " << indices.size() << std::endl;
+    }
+
+
     void LveModel::makeRectFromLayoutInfo(const std::string& file_path) {
         rapidcsv::Document infile(file_path, rapidcsv::LabelParams(-1, -1));
-
+        
         std::vector<float> bbox = infile.GetRow<float>(0);
         float bbox_min_x = bbox[0];
         float bbox_min_y = bbox[1];
@@ -244,6 +306,8 @@ namespace lve {
     void LveModel::makeVerticesFromCube() {
         Vertex temp_vertex;
 
+        srand((unsigned int)time(NULL));
+        
         float up_color = 0.15f;
         float down_color = 0.6f;
         float temp_color[3] = { 0.0f, 0.0f, 0.0f };
@@ -258,11 +322,17 @@ namespace lve {
                 if (i < 4) temp_vertex.color = { up_color , up_color , up_color };
                 else       temp_vertex.color = { down_color , down_color , down_color };
 
+                if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX) {
+                    temp_vertex.color = { static_cast<float>(rand()) / RAND_MAX, 
+                                            static_cast<float>(rand()) / RAND_MAX,
+                                            static_cast<float>(rand()) / RAND_MAX };
+                }
+
                 vertices.push_back(temp_vertex);
             }
         }
 
-//*
+/*
         temp_vertex = { { -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } };
         vertices.push_back(temp_vertex);
         temp_vertex = { { 2.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } };
@@ -362,7 +432,7 @@ namespace lve {
         }
 
         std::cout << "\tEdge Indices count : " << indices.size() << std::endl;
-
+        /*
         int axis_index = start_idx;
 
         indices.push_back(axis_index + 0); indices.push_back(axis_index + 1);
@@ -370,6 +440,7 @@ namespace lve {
         indices.push_back(axis_index + 4); indices.push_back(axis_index + 5);
         
         std::cout << "\tEdge Indices count including Axis Line : " << indices.size() << std::endl;
+        */
     }
 
 }  // namespace lve
