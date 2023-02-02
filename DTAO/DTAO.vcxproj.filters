@@ -18,10 +18,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Data\layout_input_data.csv">
+    <None Include="Data\layout_input_data_old_format.csv">
       <Filter>리소스 파일</Filter>
     </None>
-    <None Include="Data\layout_input_data_new_format.csv">
+    <None Include="Data\layout_input_data.csv">
       <Filter>리소스 파일</Filter>
     </None>
     <None Include="Data\MVP_PEX_RC_r1_0130.csv">

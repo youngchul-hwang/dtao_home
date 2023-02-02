@@ -5,6 +5,8 @@
 #include <cassert>
 #include <cstring>
 
+#include<filesystem>
+
 
 using namespace std;
 
@@ -237,6 +239,12 @@ namespace lve {
 
 
     void LveModel::makeRectFromLayoutInfo(const std::string& file_path) {
+
+        if (!filesystem::exists(file_path)) {
+            cerr << "File is not exist : " << file_path << endl;
+            return;
+        }
+
         rapidcsv::Document infile(file_path, rapidcsv::LabelParams(-1, -1));
         
         std::vector<float> bbox = infile.GetRow<float>(0);
@@ -257,19 +265,19 @@ namespace lve {
 
         size_t line_count = infile.GetRowCount();
         rect_from_layout cur_rect;
-        for (int i = 0; i < line_count; ++i) {
+        for (int i = 1; i < line_count; ++i) { //first line is bbox area
             vector<string> line = infile.GetRow<string>(i);
-            if (line[LAYOUTINFO_IDX_STRUCTURE] != "Poly") continue;
-            if (std::stoi(line[LAYOUTINFO_IDX_NUMPOINTS]) != 4) continue;
+            //if (line[LAYOUTINFO_IDX_STRUCTURE] != "Poly") continue;
+            //if (std::stoi(line[LAYOUTINFO_IDX_NUMPOINTS]) != 4) continue;
 
             cur_rect.minz = std::stof(line[LAYOUTINFO_IDX_ZSTART]);
             cur_rect.maxz = std::stof(line[LAYOUTINFO_IDX_ZEND]);
             if (cur_rect.minz == cur_rect.maxz) continue;
 
-            cur_rect.minx = min(std::stof(line[LAYOUTINFO_IDX_X1]), std::stof(line[LAYOUTINFO_IDX_X1 + 4]));
-            cur_rect.maxx = max(std::stof(line[LAYOUTINFO_IDX_X1]), std::stof(line[LAYOUTINFO_IDX_X1 + 4]));
-            cur_rect.miny = min(std::stof(line[LAYOUTINFO_IDX_X1 + 1]), std::stof(line[LAYOUTINFO_IDX_X1 + 5]));
-            cur_rect.maxy = max(std::stof(line[LAYOUTINFO_IDX_X1 + 1]), std::stof(line[LAYOUTINFO_IDX_X1 + 5]));
+            cur_rect.minx = std::stof(line[LAYOUTINFO_IDX_LEFT]);
+            cur_rect.maxx = std::stof(line[LAYOUTINFO_IDX_RIGHT]);
+            cur_rect.miny = std::stof(line[LAYOUTINFO_IDX_BOTTOM]);
+            cur_rect.maxy = std::stof(line[LAYOUTINFO_IDX_TOP]);
 
             //cur_rect.minx = coord_normalize(cur_rect.minx, bbox_min_x, scale);
             //cur_rect.maxx = coord_normalize(cur_rect.maxx, bbox_min_x, scale);
@@ -282,6 +290,13 @@ namespace lve {
         }
 
         infile.Clear();
+
+        /*
+        for (auto& rect : this->rects) {
+            printf("left/bottom/right/top/z-start/z-end = %.4f/%.4f/%.4f/%.4f/%.4f/%.4f/\n",
+                rect.minx, rect.miny, rect.maxx, rect.maxy, rect.minz, rect.maxz);
+        }
+        //*/
     }
 
     void LveModel::makeCubeFromLayoutRect() {
