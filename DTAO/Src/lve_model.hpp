@@ -13,27 +13,18 @@
 #include <string>
 #include <iostream>
 
+#include "LayoutPEXData.h"
+
 typedef enum MODEL_TYPE {
     MODEL_TYPE_LAYOUT = 0,
     MODEL_TYPE_PEX,
     MODEL_TYPE_AXIS,
+    MODEL_TYPE_PEX_RESISTOR,
+    MODEL_TYPE_PEX_CAPACITOR,
     MODEL_TYPE_DEFAULT = 99
 } MODEL_TYPE;
 
-typedef enum LAYOUTINFO_INDEX {
-    //LAYOUTINFO_IDX_STRUCTURE = 0,
-    //LAYOUTINFO_IDX_CELLNAME = 1,
-    LAYOUTINFO_IDX_LAYER = 0,
-    LAYOUTINFO_IDX_DATATYPE = 1,
-    LAYOUTINFO_IDX_LEFT = 2,
-    LAYOUTINFO_IDX_BOTTOM = 3,
-    LAYOUTINFO_IDX_RIGHT = 4,
-    LAYOUTINFO_IDX_TOP = 5,
-    LAYOUTINFO_IDX_ZSTART = 6,
-    LAYOUTINFO_IDX_ZEND = 7,
-    LAYOUTINFO_IDX_DEFAULT = -1,
 
-} LAYOUTINFO_INDEX;
 
 namespace lve {
     class LveModel {
@@ -45,28 +36,8 @@ namespace lve {
             static std::vector<VkVertexInputBindingDescription> getBindingDescriptions();
             static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
         };
-
-        struct rect_from_layout {
-            float minx;
-            float miny;
-            float maxx;
-            float maxy;
-            float minz;
-            float maxz;
-        };
-
-        struct coord3d {
-            float x;
-            float y;
-            float z;
-        };
-
-        struct cube_vertex {
-            coord3d vertex[8];
-        };
-
-
-        LveModel(LveDevice& device, MODEL_TYPE model_type, const std::string& layout_info_file = "");
+        
+        LveModel(LveDevice& device, MODEL_TYPE model_type);
         ~LveModel();
 
         LveModel() = delete;
@@ -81,7 +52,7 @@ namespace lve {
         void drawForEdge(VkCommandBuffer commandBuffer);
 
 
-    private:
+    public:
         void createBuffers();
         void destroyBuffers();
         void createVertexBuffers(const std::vector<Vertex>& vertices);
@@ -100,10 +71,10 @@ namespace lve {
         
         MODEL_TYPE model_type{};
 
-    private:
+    public:
         //std::string layout_info_file;
-        std::vector<rect_from_layout> rects{};
-        std::vector<cube_vertex> cubes{};
+        std::vector<cube_info> cube_infos{};
+        std::vector<cube_vertex> cube_vertices{};
 
         std::vector<Vertex> vertices{};
 
@@ -111,19 +82,15 @@ namespace lve {
         std::vector<uint32_t> indices_edge{};
 
     public:
-        //void setLayoutInfoFile(const std::string file_path) { this->layout_info_file = file_path; }
-        void loadRenderingData(const std::string file_path);
-        void loadPEXRenderingData(const std::string file_path);
-        void makeAxisData(const float axis_length = (2.0f) );
-
-        void makeRectFromLayoutInfo( const std::string& file_path );
-        void makeCubeFromLayoutRect();
-
-        void makeVerticesFromCube();
-        void makeIndicesForFaceTriangle();
-        void makeIndicesForEdgeLine();
-                  
         MODEL_TYPE getModelType() { return this->model_type; }
-        
+
+    public:
+        //void setLayoutInfoFile(const std::string file_path) { this->layout_info_file = file_path; }
+        virtual void makeRenderingData(const std::string& file_path = "") {};
+        virtual void loadData(const std::string& file_path = "") {};
+        virtual void makeVertices() {};
+        virtual void makeIndices() {};
+
+        void makeAxisData(const float axis_length = (2.0f) );
     };
 }  // namespace lve

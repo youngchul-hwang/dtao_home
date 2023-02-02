@@ -17,26 +17,21 @@ inline float coord_normalize(float in_value, float move, float scale) {
 
 namespace lve {
     
-    LveModel::LveModel(LveDevice& device, MODEL_TYPE type, const std::string& layout_info_file) 
+    LveModel::LveModel(LveDevice& device, MODEL_TYPE type) 
         : lveDevice{ device }, model_type(type) {
-        if (type == MODEL_TYPE::MODEL_TYPE_LAYOUT && !layout_info_file.empty()) {
-            loadRenderingData(layout_info_file);
-        }
-        else if (type == MODEL_TYPE::MODEL_TYPE_AXIS) {
+        if (type == MODEL_TYPE::MODEL_TYPE_AXIS) {
             makeAxisData();
+            createBuffers();
         }
-        else if (type == MODEL_TYPE::MODEL_TYPE_PEX && !layout_info_file.empty()) {
-            loadPEXRenderingData(layout_info_file);
-        }
-
-        createBuffers();       
+   
+        //createBuffers();       
     }
 
     LveModel::~LveModel() {
         destroyBuffers();
 
-        this->rects.clear();
-        this->cubes.clear();
+        this->cube_infos.clear();
+        this->cube_vertices.clear();
         this->vertices.clear();
         this->indices_face.clear();
         this->indices_edge.clear();
@@ -198,21 +193,6 @@ namespace lve {
         return attributeDescriptions;
     }
 
-    void LveModel::loadRenderingData(const std::string file_path) {
-        this->makeRectFromLayoutInfo(file_path);
-        this->makeCubeFromLayoutRect();
-        this->makeVerticesFromCube();
-        this->makeIndicesForFaceTriangle();
-        this->makeIndicesForEdgeLine();
-    }
-
-    void LveModel::loadPEXRenderingData(const std::string file_path) {
-        this->makeRectFromLayoutInfo(file_path);
-        this->makeCubeFromLayoutRect();
-        this->makeVerticesFromCube();
-        this->makeIndicesForFaceTriangle();
-    }
-
     void LveModel::makeAxisData(const float axis_length) {
         Vertex temp_vertex;
         this->vertices.clear();
@@ -225,7 +205,6 @@ namespace lve {
             { { 0.0f, 0.0f,  axis_length }, { 0.0f, 0.0f, 1.0f } }
         };
 
-        std::cout << "\nMake Indices For Axis Line\n";
         vector<uint32_t>& indices = this->indices_edge;
         indices.clear();
         indices.push_back(0); 
@@ -234,228 +213,5 @@ namespace lve {
         indices.push_back(3);
         indices.push_back(4); 
         indices.push_back(5);
-        std::cout << "\tEdge Indices count : " << indices.size() << std::endl;
     }
-
-
-    void LveModel::makeRectFromLayoutInfo(const std::string& file_path) {
-
-        if (!filesystem::exists(file_path)) {
-            cerr << "File is not exist : " << file_path << endl;
-            return;
-        }
-
-        rapidcsv::Document infile(file_path, rapidcsv::LabelParams(-1, -1));
-        
-        std::vector<float> bbox = infile.GetRow<float>(0);
-        float bbox_min_x = bbox[0];
-        float bbox_min_y = bbox[1];
-        float bbox_max_x = bbox[2];
-        float bbox_max_y = bbox[3];
-        float bbox_min_z = bbox[4];
-        float bbox_max_z = bbox[5];
-
-        float x_diff = bbox_max_x - bbox_min_x;
-        float y_diff = bbox_max_y - bbox_min_y;
-        float z_diff = bbox_max_z - bbox_min_z;
-
-        float max_diff = x_diff > y_diff ? x_diff : y_diff;
-        max_diff = max_diff > z_diff ? max_diff : z_diff;
-        float scale = 1.0f / max_diff;
-
-        size_t line_count = infile.GetRowCount();
-        rect_from_layout cur_rect;
-        for (int i = 1; i < line_count; ++i) { //first line is bbox area
-            vector<string> line = infile.GetRow<string>(i);
-            //if (line[LAYOUTINFO_IDX_STRUCTURE] != "Poly") continue;
-            //if (std::stoi(line[LAYOUTINFO_IDX_NUMPOINTS]) != 4) continue;
-
-            cur_rect.minz = std::stof(line[LAYOUTINFO_IDX_ZSTART]);
-            cur_rect.maxz = std::stof(line[LAYOUTINFO_IDX_ZEND]);
-            if (cur_rect.minz == cur_rect.maxz) continue;
-
-            cur_rect.minx = std::stof(line[LAYOUTINFO_IDX_LEFT]);
-            cur_rect.maxx = std::stof(line[LAYOUTINFO_IDX_RIGHT]);
-            cur_rect.miny = std::stof(line[LAYOUTINFO_IDX_BOTTOM]);
-            cur_rect.maxy = std::stof(line[LAYOUTINFO_IDX_TOP]);
-
-            //cur_rect.minx = coord_normalize(cur_rect.minx, bbox_min_x, scale);
-            //cur_rect.maxx = coord_normalize(cur_rect.maxx, bbox_min_x, scale);
-            //cur_rect.miny = coord_normalize(cur_rect.miny, bbox_min_y, scale);
-            //cur_rect.maxy = coord_normalize(cur_rect.maxy, bbox_min_y, scale);
-            //cur_rect.minz = coord_normalize(cur_rect.minz, bbox_min_z, scale);
-            //cur_rect.maxz = coord_normalize(cur_rect.maxz, bbox_min_z, scale);
-
-            this->rects.push_back(cur_rect);
-        }
-
-        infile.Clear();
-
-        /*
-        for (auto& rect : this->rects) {
-            printf("left/bottom/right/top/z-start/z-end = %.4f/%.4f/%.4f/%.4f/%.4f/%.4f/\n",
-                rect.minx, rect.miny, rect.maxx, rect.maxy, rect.minz, rect.maxz);
-        }
-        //*/
-    }
-
-    void LveModel::makeCubeFromLayoutRect() {
-        vector<rect_from_layout>::const_iterator it;
-        cube_vertex cur_cube;
-
-        for (it = rects.begin(); it != rects.end(); ++it) {
-            cur_cube.vertex[0] = { it->minx, it->maxy, it->maxz };
-            cur_cube.vertex[1] = { it->minx, it->miny, it->maxz };
-            cur_cube.vertex[2] = { it->maxx, it->miny, it->maxz };
-            cur_cube.vertex[3] = { it->maxx, it->maxy, it->maxz };
-
-            cur_cube.vertex[4] = { it->minx, it->maxy, it->minz };
-            cur_cube.vertex[5] = { it->minx, it->miny, it->minz };
-            cur_cube.vertex[6] = { it->maxx, it->miny, it->minz };
-            cur_cube.vertex[7] = { it->maxx, it->maxy, it->minz };
-
-            cubes.push_back(cur_cube);
-        }
-    }
-
-    void LveModel::makeVerticesFromCube() {
-        Vertex temp_vertex;
-
-        srand((unsigned int)time(NULL));
-        
-        float up_color = 0.15f;
-        float down_color = 0.6f;
-        float temp_color[3] = { 0.0f, 0.0f, 0.0f };
-
-        float edge_color = 0.15f;
-
-        for (const auto& cur_cube : this->cubes) {
-            for (int i = 0; i < 8; ++i) {
-
-                temp_vertex.position = { cur_cube.vertex[i].x, cur_cube.vertex[i].y, cur_cube.vertex[i].z };
-                //temp_vertex.color_edge = { edge_color, edge_color, edge_color };
-                if (i < 4) temp_vertex.color = { up_color , up_color , up_color };
-                else       temp_vertex.color = { down_color , down_color , down_color };
-
-                if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX) {
-                    temp_vertex.color = { static_cast<float>(rand()) / RAND_MAX, 
-                                            static_cast<float>(rand()) / RAND_MAX,
-                                            static_cast<float>(rand()) / RAND_MAX };
-                }
-
-                vertices.push_back(temp_vertex);
-            }
-        }
-
-/*
-        temp_vertex = { { -2.0f, 0.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } };
-        vertices.push_back(temp_vertex);
-        temp_vertex = { { 2.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f } };
-        vertices.push_back(temp_vertex);
-
-        temp_vertex = { { 0.0f, -2.0f, 0.0f }, { 1.0f, 1.0f, 1.0f } };
-        vertices.push_back(temp_vertex);
-        temp_vertex = { { 0.0f, 2.0f, 0.0f }, { 0.0f, 1.0f, 0.0f } };
-        vertices.push_back(temp_vertex);
-
-        temp_vertex = { { 0.0f, 0.0f, -2.0f }, { 1.0f, 1.0f, 1.0f } };
-        vertices.push_back(temp_vertex);
-        temp_vertex = { { 0.0f, 0.0f, 2.0f }, { 0.0f, 0.0f, 1.0f } };
-        vertices.push_back(temp_vertex);
-//*/
-    }
-
-    void LveModel::makeIndicesForFaceTriangle() {
-
-        size_t cube_count = this->cubes.size();
-
-        std::cout << "\nMake Indices For Face Triangle\n";
-        std::cout << "\tCube count : " << this->cubes.size() << std::endl;
-
-        uint32_t start_idx = 0;
-        std::vector<uint32_t>& indices = this->indices_face;
-        for (int i = 0; i < cube_count; ++i) {
-            start_idx = 8 * i;
-            indices.push_back(start_idx + 0); indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-            indices.push_back(start_idx + 2); indices.push_back(start_idx + 3); indices.push_back(start_idx + 0);//top
-
-            indices.push_back(start_idx + 3); indices.push_back(start_idx + 2); indices.push_back(start_idx + 6);
-            indices.push_back(start_idx + 6); indices.push_back(start_idx + 7); indices.push_back(start_idx + 3);//right
-
-            indices.push_back(start_idx + 0); indices.push_back(start_idx + 3); indices.push_back(start_idx + 7);
-            indices.push_back(start_idx + 7); indices.push_back(start_idx + 4); indices.push_back(start_idx + 0);//front
-
-            indices.push_back(start_idx + 4); indices.push_back(start_idx + 7); indices.push_back(start_idx + 6);
-            indices.push_back(start_idx + 6); indices.push_back(start_idx + 5); indices.push_back(start_idx + 4);//bottom
-
-            indices.push_back(start_idx + 0); indices.push_back(start_idx + 4); indices.push_back(start_idx + 5);
-            indices.push_back(start_idx + 5); indices.push_back(start_idx + 1); indices.push_back(start_idx + 0);//left
-
-            indices.push_back(start_idx + 1); indices.push_back(start_idx + 5); indices.push_back(start_idx + 6);
-            indices.push_back(start_idx + 6); indices.push_back(start_idx + 2); indices.push_back(start_idx + 1);//back
-        }
-
-        std::cout << "\tIndices count : " << indices.size() << std::endl;
-    }
-
-    void LveModel::makeIndicesForEdgeLine() {
-        size_t cube_count = this->cubes.size();
-
-        std::cout << "\nMake Indices For Edge Line\n";
-        std::cout << "\tCube count : " << this->cubes.size() << std::endl;
-
-        
-        std::vector<uint32_t>& indices = this->indices_edge;
-        uint32_t start_idx = 0;
-        for (int i = 0; i < cube_count; ++i, start_idx += 8) {
-            //start_idx = 8 * i;
-            //top
-            indices.push_back(start_idx + 0); indices.push_back(start_idx + 1);
-            indices.push_back(start_idx + 1); indices.push_back(start_idx + 2);
-            indices.push_back(start_idx + 2); indices.push_back(start_idx + 3);
-            indices.push_back(start_idx + 3); indices.push_back(start_idx + 0);
-
-            //bottom
-            indices.push_back(start_idx + 4); indices.push_back(start_idx + 7);
-            indices.push_back(start_idx + 7); indices.push_back(start_idx + 6);
-            indices.push_back(start_idx + 6); indices.push_back(start_idx + 5);
-            indices.push_back(start_idx + 5); indices.push_back(start_idx + 4);
-
-            //right
-            indices.push_back(start_idx + 3); indices.push_back(start_idx + 2);
-            indices.push_back(start_idx + 2); indices.push_back(start_idx + 6);
-            indices.push_back(start_idx + 6); indices.push_back(start_idx + 7);
-            indices.push_back(start_idx + 7); indices.push_back(start_idx + 3);
-
-            //left
-            indices.push_back(start_idx + 0); indices.push_back(start_idx + 4);
-            indices.push_back(start_idx + 4); indices.push_back(start_idx + 5);
-            indices.push_back(start_idx + 5); indices.push_back(start_idx + 1);
-            indices.push_back(start_idx + 1); indices.push_back(start_idx + 0);
-
-            //front
-            indices.push_back(start_idx + 0); indices.push_back(start_idx + 3);
-            indices.push_back(start_idx + 3); indices.push_back(start_idx + 7);
-            indices.push_back(start_idx + 7); indices.push_back(start_idx + 4);
-            indices.push_back(start_idx + 4); indices.push_back(start_idx + 0);
-
-            //back
-            indices.push_back(start_idx + 1); indices.push_back(start_idx + 5);
-            indices.push_back(start_idx + 5); indices.push_back(start_idx + 6);
-            indices.push_back(start_idx + 6); indices.push_back(start_idx + 2);
-            indices.push_back(start_idx + 2); indices.push_back(start_idx + 1);
-        }
-
-        std::cout << "\tEdge Indices count : " << indices.size() << std::endl;
-        /*
-        int axis_index = start_idx;
-
-        indices.push_back(axis_index + 0); indices.push_back(axis_index + 1);
-        indices.push_back(axis_index + 2); indices.push_back(axis_index + 3);
-        indices.push_back(axis_index + 4); indices.push_back(axis_index + 5);
-        
-        std::cout << "\tEdge Indices count including Axis Line : " << indices.size() << std::endl;
-        */
-    }
-
 }  // namespace lve

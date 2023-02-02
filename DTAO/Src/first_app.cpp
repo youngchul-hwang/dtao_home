@@ -16,6 +16,10 @@
 #include <chrono>
 #include <stdexcept>
 
+#include "PEXResistorModel.h"
+#include "PEXCapacitorModel.h"
+#include "LayoutModel.h"
+
 namespace lve {
 
     FirstApp::FirstApp() { loadGameObjects(); }
@@ -67,37 +71,37 @@ namespace lve {
 
         //PEX model
         
-        std::string pex_info_file_path = "Data/layout_input_data.csv";
-        std::shared_ptr<LveModel> pex_model
-            = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_PEX, pex_info_file_path);
+        std::string pex_info_file_path = "Data/MVP_PEX_RC_r1_0130.csv";
+        
+        //std::shared_ptr<LveModel> pex_model
+        //    = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_PEX, pex_info_file_path);
+
+        std::shared_ptr<PEXResistorModel> pex_model
+            = std::make_unique<PEXResistorModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR, pex_info_file_path);
         auto cube = LveGameObject::createGameObject();
         cube.model = pex_model;
         cube.transform.translation = { 0.f, 0.f, 0.0f };
         cube.transform.scale = { 0.95f, 0.95f, 0.95f };
         gameObjects.push_back(std::move(cube));
 
-        cube = LveGameObject::createGameObject();
-        cube.model = pex_model;
-        cube.transform.translation = { -0.5f, 0.0f, 0.0f };
-        cube.transform.scale = { 0.95f, 0.95f, 0.95f };
-        gameObjects.push_back(std::move(cube));
-
+  
         //Layout model
         std::string layout_info_file_path = "Data/layout_input_data.csv";
-        std::shared_ptr<LveModel> layout_model
-            = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_LAYOUT, layout_info_file_path);    
+        std::shared_ptr<LayoutModel> layout_model
+            = std::make_unique<LayoutModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_LAYOUT, layout_info_file_path);    
         cube = LveGameObject::createGameObject();
         cube.model = layout_model;
         cube.transform.translation = { 0.0f, 0.0f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
 
+        /*
         cube = LveGameObject::createGameObject();
         cube.model = layout_model;
         cube.transform.translation = { -0.5f, 0.0f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
-        
+        */
      
 
         //Axis model

@@ -50,7 +50,7 @@
     <ClCompile Include="Src\keyboard_movement_controller.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Src\LayoutPEXData.cpp">
+    <ClCompile Include="Src\PEXData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Src\lve_camera.cpp">
@@ -78,6 +78,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Src\simple_render_system.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\LayoutModel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\PEXCapacitorModel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\PEXResistorModel.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Src\LayoutData.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
@@ -122,6 +134,15 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Src\simple_render_system.hpp">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\LayoutModel.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\PEXCapacitorModel.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Src\PEXResistorModel.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

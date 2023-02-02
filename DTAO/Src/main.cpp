@@ -9,9 +9,7 @@
 #include "LayoutPEXData.h"
 
 int main() {
-    //pex::testLayoutPEXData();
-    //return 1;
-
+    
     lve::FirstApp app{};
 
     try {

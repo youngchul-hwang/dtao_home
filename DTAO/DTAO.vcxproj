@@ -147,7 +147,9 @@
   <ItemGroup>
     <ClCompile Include="Src\first_app.cpp" />
     <ClCompile Include="Src\keyboard_movement_controller.cpp" />
-    <ClCompile Include="Src\LayoutPEXData.cpp" />
+    <ClCompile Include="Src\LayoutData.cpp" />
+    <ClCompile Include="Src\LayoutModel.cpp" />
+    <ClCompile Include="Src\PEXData.cpp" />
     <ClCompile Include="Src\lve_camera.cpp" />
     <ClCompile Include="Src\lve_device.cpp" />
     <ClCompile Include="Src\lve_model.cpp" />
@@ -156,11 +158,14 @@
     <ClCompile Include="Src\lve_swap_chain.cpp" />
     <ClCompile Include="Src\lve_window.cpp" />
     <ClCompile Include="Src\main.cpp" />
+    <ClCompile Include="Src\PEXCapacitorModel.cpp" />
+    <ClCompile Include="Src\PEXResistorModel.cpp" />
     <ClCompile Include="Src\simple_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Src\first_app.hpp" />
     <ClInclude Include="Src\keyboard_movement_controller.hpp" />
+    <ClInclude Include="Src\LayoutModel.h" />
     <ClInclude Include="Src\LayoutPEXData.h" />
     <ClInclude Include="Src\lve_camera.hpp" />
     <ClInclude Include="Src\lve_device.hpp" />
@@ -170,6 +175,8 @@
     <ClInclude Include="Src\lve_renderer.hpp" />
     <ClInclude Include="Src\lve_swap_chain.hpp" />
     <ClInclude Include="Src\lve_window.hpp" />
+    <ClInclude Include="Src\PEXCapacitorModel.h" />
+    <ClInclude Include="Src\PEXResistorModel.h" />
     <ClInclude Include="Src\rapidcsv.h" />
     <ClInclude Include="Src\simple_render_system.hpp" />
     <ClInclude Include="Src\utils.h" />

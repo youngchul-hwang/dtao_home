@@ -98,6 +98,7 @@ namespace lve {
 
     public:
         std::shared_ptr<LveModel> model{};
+        //LveModel* model{};
         glm::vec3 color{};
         TransformComponent transform{};
 

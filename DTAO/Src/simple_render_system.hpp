@@ -33,13 +33,16 @@ namespace lve {
 
         LveDevice& lveDevice;
 
-        std::unique_ptr<LvePipeline> lvePipelineForFace;
-        VkPipelineLayout pipelineLayoutForFace;
+        std::unique_ptr<LvePipeline> lvePipelineForLayoutFace;
+        VkPipelineLayout pipelineLayoutForLayoutFace;
 
-        std::unique_ptr<LvePipeline> lvePipelineForEdge;
-        VkPipelineLayout pipelineLayoutForEdge;
+        std::unique_ptr<LvePipeline> lvePipelineForLayoutEdge;
+        VkPipelineLayout pipelineLayoutForLayoutEdge;
 
-        std::unique_ptr<LvePipeline> lvePipelineForPEX;
-        VkPipelineLayout pipelineLayoutForPEX;
+        std::unique_ptr<LvePipeline> lvePipelineForPEXResistor;
+        VkPipelineLayout pipelineLayoutForPEXResistor;
+
+        std::unique_ptr<LvePipeline> lvePipelineForPEXCapacitor;
+        VkPipelineLayout pipelineLayoutForPEXCapacitor;
     };
 }  // namespace lve
