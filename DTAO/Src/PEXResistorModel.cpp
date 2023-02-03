@@ -30,11 +30,19 @@ namespace lve {
 		makeCubeVertices();
 		makeVertices();
 		makeIndices();
+
+		printf("\nPEX Resistor\n");
+		printf("\tresistor count      : %lld\n", this->pex_data.getResistors().size());
+		printf("\tcube_info count     : %lld\n", this->cube_infos.size());
+		printf("\tcube_vertices count : %lld\n", this->cube_vertices.size());
+		printf("\tVertices count      : %lld\n", this->vertices.size());
+		printf("\tIndices count       : %lld\n", this->indices_face.size());
+		
 	}
 
 	void PEXResistorModel::loadData(const std::string& file_path) {
 		this->pex_data.loadPEXData(file_path);
-		//this->pex_data.printPEXData();
+		this->pex_data.printPEXData();
 	}
 
 	void PEXResistorModel::makeCubes() {
@@ -56,11 +64,19 @@ namespace lve {
 			cube.maxz = res.node2.z_start;
 		}
 		else if (res_direction == RES_DIRECTION_HORIZONTAL) {
-			cube.minx = res.node1.x;
-			cube.maxx = res.node2.x;
-			cube.miny = res.node1.y - this->res_cube_thickness;
-			cube.maxy = res.node1.y + this->res_cube_thickness;
-
+			if (res.node1.x == res.node2.x) {//run-length direction : y
+				cube.minx = res.node1.x - this->res_cube_thickness;
+				cube.maxx = res.node1.x + this->res_cube_thickness;
+				cube.miny = res.node1.y < res.node2.y ? res.node1.y : res.node2.y;
+				cube.maxy = res.node1.y < res.node2.y ? res.node2.y : res.node1.y;
+			}
+			else if(res.node1.y == res.node2.y ) {//run-length direction : x
+				cube.minx = res.node1.x < res.node2.x ? res.node1.x : res.node2.x;
+				cube.maxx = res.node1.x < res.node2.x ? res.node2.x : res.node1.x;
+				cube.miny = res.node1.y - this->res_cube_thickness;
+				cube.maxy = res.node1.y + this->res_cube_thickness;
+			}
+			
 			double midz = (res.node1.z_start + res.node1.z_end) * 0.5;
 			cube.minz = midz - this->res_cube_thickness;
 			cube.maxz = midz + this->res_cube_thickness;
@@ -105,8 +121,9 @@ namespace lve {
 				temp_vertex.color = { static_cast<float>(rand()) / RAND_MAX,
 					static_cast<float>(rand()) / RAND_MAX,
 					static_cast<float>(rand()) / RAND_MAX };
+
+				vertices.push_back(temp_vertex);
 			}//for i 0 to 8
-			vertices.push_back(temp_vertex);
 		}//for cur_cube : this->cubes
 	}
 	

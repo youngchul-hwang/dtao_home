@@ -42,6 +42,15 @@
     <None Include="shaders\simple_shader_edge.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="Data\pex_cap_test.csv">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Data\pex_res_test_beol_only.csv">
+      <Filter>리소스 파일</Filter>
+    </None>
+    <None Include="Data\pex_res_test_simple.csv">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\first_app.cpp">
@@ -145,5 +154,10 @@
     <ClInclude Include="Src\PEXResistorModel.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Data\pex_res_test.csv">
+      <Filter>리소스 파일</Filter>
+    </Text>
   </ItemGroup>
 </Project>

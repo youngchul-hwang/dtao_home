@@ -16,23 +16,24 @@ namespace lve {
 	/// PEXItem
 	/// ///////////////////////////////////////////////////////////////
 	/// </summary>
-	PEXItem::PEXItem() : node1{}, node2{} {
+	PEXItem::PEXItem() : node1{}, node2{}, name{} {
 		this->value = 0.0;
 	}
 
-	PEXItem::PEXItem(const node& node1_, const node& node2_, const double& value_) :
-		node1(node1_), node2(node2_), value(value_) {
+	PEXItem::PEXItem(const node& node1_, const node& node2_, const double& value_, const string& name_) :
+		node1(node1_), node2(node2_), value(value_), name(name_) {
 	}
 
 	PEXItem::~PEXItem() {
 	}
-
-void PEXItem::print() {
+	
+	void PEXItem::print() {
+		printf("%s\n", this->name.c_str());
 		printf("Node1 x1/y1/x2/y2/Z-s/Z-e = %.5f,%.5f,%.5f,%.5f\n", 
 			this->node1.x, this->node1.y, this->node1.z_start, this->node1.z_end);
 		printf("Node2 x1/y1/x2/y2/Z-s/Z-e = %.5f,%.5f,%.5f,%.5f\n",
 			this->node2.x, this->node2.y, this->node2.z_start, this->node2.z_end);
-	}
+}
 
 	/// <summary>
 	/// PEXResistor
@@ -40,8 +41,8 @@ void PEXItem::print() {
 	/// </summary>
 	PEXResistor::PEXResistor() : PEXItem(), direction(RES_DIRECTION_NONE) {
 	}
-	PEXResistor::PEXResistor(const node& node1_, const node& node2_, const double& value_, const PEXResDirection& direction_) :
-		PEXItem(node1_, node2_, value_), direction(direction_) {
+	PEXResistor::PEXResistor(const string& name_, const node& node1_, const node& node2_, const double& value_, const PEXResDirection& direction_) :
+		PEXItem(node1_, node2_, value_, name_), direction(direction_) {
 	}
 
 	void PEXResistor::print() {
@@ -56,8 +57,18 @@ void PEXItem::print() {
 	}
 
 	PEXResDirection PEXResistor::checkDirectionFromDescription(const std::string& description) {
-		if (description.find("$a")) return RES_DIRECTION_VERTICAL;
-		else return RES_DIRECTION_HORIZONTAL;
+		PEXResDirection direction;
+		if (description.find("$a") == std::string::npos) {
+			direction = RES_DIRECTION_HORIZONTAL;
+		}
+		else {
+			direction = RES_DIRECTION_VERTICAL;			
+		}
+		//printf("#####Description = %s, ", description.c_str());
+		//if (direction == RES_DIRECTION_VERTICAL) printf("Vertical\n");
+		//else printf("Horizontal\n");
+
+		return direction;
 	}
 
 	/// <summary>
@@ -66,8 +77,8 @@ void PEXItem::print() {
 	/// </summary>
 	PEXCapacitor::PEXCapacitor() : PEXItem() {
 	}
-	PEXCapacitor::PEXCapacitor(const node& node1_, const node& node2_, const double& value_) :
-		PEXItem(node1_, node2_, value_) {
+	PEXCapacitor::PEXCapacitor(const std::string& name_, const node& node1_, const node& node2_, const double& value_) :
+		PEXItem(node1_, node2_, value_, name_) {
 	}
 	PEXCapacitor::~PEXCapacitor() {
 	}
@@ -152,11 +163,11 @@ void PEXItem::print() {
 
 				updateMinMaxRes(value);
 				description = line[PEXINFO_INDEX::PEXINFO_INDEX_DESCRIPTION];
-				this->resistors.push_back(PEXResistor(node1, node2, value, PEXResistor::checkDirectionFromDescription(description)));				
+				this->resistors.push_back(PEXResistor(item_name, node1, node2, value, PEXResistor::checkDirectionFromDescription(description)));				
 			}
 			else if (item_name[0] == 'C') {
 				updateMinMaxCap(value);
-				this->capasitors.push_back(PEXCapacitor(node1, node2, value));
+				this->capasitors.push_back(PEXCapacitor(item_name, node1, node2, value));
 			}
 		}
 	}

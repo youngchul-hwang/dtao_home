@@ -137,12 +137,13 @@ namespace lve {
 	public:
 		PEXItem();
 		~PEXItem();
-		PEXItem(const node& node1_, const node& node2_, const double& value_);
+		PEXItem(const node& node1_, const node& node2_, const double& value_, const std::string& name_);
 
 	public:
 		node node1;
 		node node2;
 		double value;
+		std::string name;
 
 	public:
 		void setNode1(node& node_) { this->node1 = node_; }
@@ -163,7 +164,7 @@ namespace lve {
 	public:
 		PEXResistor();
 		~PEXResistor();
-		PEXResistor(const node& node1_, const node& node2_, const double& value_, const PEXResDirection& direction_);
+		PEXResistor(const std::string& name_, const node& node1_, const node& node2_, const double& value_, const PEXResDirection& direction_);
 
 	private:
 		PEXResDirection direction;
@@ -182,7 +183,7 @@ namespace lve {
 	public:
 		PEXCapacitor();
 		~PEXCapacitor();
-		PEXCapacitor(const node& node1_, const node& node2_, const double& value_);
+		PEXCapacitor(const std::string& name_, const node& node1_, const node& node2_, const double& value_);
 
 	public:
 		void print();

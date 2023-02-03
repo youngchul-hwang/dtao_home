@@ -161,8 +161,8 @@ namespace lve {
             }
 
             if(obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR) {
-                /*
-                lvePipelineForPEX->bind(commandBuffer);
+                //*
+                lvePipelineForPEXResistor->bind(commandBuffer);
                 vkCmdPushConstants(
                     commandBuffer, pipelineLayoutForPEXResistor,
                     VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
@@ -170,7 +170,7 @@ namespace lve {
                 obj.model->bindVertexBuffer(commandBuffer);
                 obj.model->bindIndexBufferForFace(commandBuffer);
                 obj.model->drawForFace(commandBuffer);
-                */
+                //*/
             }
 
             if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR) {

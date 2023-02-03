@@ -47,8 +47,11 @@ namespace lve {
         else if (this->model_type == MODEL_TYPE::MODEL_TYPE_AXIS) {
             createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
         }
-        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX) {
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR) {
             createIndexBuffers(this->indices_face, this->indexBufferForFace, this->indexBufferMemoryForFace);
+        }
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR) {
+            createIndexBuffers(this->indices_edge, this->indexBufferForEdge, this->indexBufferMemoryForEdge);
         }
     }
 
@@ -66,9 +69,13 @@ namespace lve {
             vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
             vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
         }
-        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX) {
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR) {
             vkDestroyBuffer(lveDevice.device(), indexBufferForFace, nullptr);
             vkFreeMemory(lveDevice.device(), indexBufferMemoryForFace, nullptr);
+        }
+        else if (this->model_type == MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR) {
+            vkDestroyBuffer(lveDevice.device(), indexBufferForEdge, nullptr);
+            vkFreeMemory(lveDevice.device(), indexBufferMemoryForEdge, nullptr);
         }
 
     }
