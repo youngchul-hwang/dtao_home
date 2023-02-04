@@ -20,7 +20,7 @@ typedef enum MODEL_TYPE {
     MODEL_TYPE_AXIS,
     MODEL_TYPE_PEX_RESISTOR,
     MODEL_TYPE_PEX_CAPACITOR,
-    MODEL_TYPE_DEFAULT = 99
+    MODEL_TYPE_DEFAULT
 } MODEL_TYPE;
 
 
@@ -80,6 +80,8 @@ namespace lve {
         std::vector<uint32_t> indices_face{};
         std::vector<uint32_t> indices_edge{};
 
+        bool visible{true};
+
     public:
         MODEL_TYPE getModelType() { return this->model_type; }
 
@@ -91,5 +93,8 @@ namespace lve {
         virtual void makeIndices() {};
 
         void makeAxisData(const float axis_length = (2.0f) );
+        void setVisible(bool flag) { this->visible = flag; }
+        bool getVisible() { return this->visible; }
+        void toggleVisible() { this->visible = !this->visible; }
     };
 }  // namespace lve

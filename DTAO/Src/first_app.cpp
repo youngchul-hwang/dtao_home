@@ -38,7 +38,7 @@ namespace lve {
 
         auto viewerObject = LveGameObject::createGameObject();
         KeyboardMovementController cameraController{};
-
+       
         auto currentTime = std::chrono::high_resolution_clock::now();
         while (!lveWindow.shouldClose()) {
             glfwPollEvents();
@@ -50,6 +50,7 @@ namespace lve {
 
             cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject);
             //camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
+            cameraController.visibleSetting(lveWindow.getGLFWwindow(), this->gameObjects);
 
             float aspect = lveRenderer.getAspectRatio();
             camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
@@ -83,6 +84,7 @@ namespace lve {
         gameObjects.push_back(std::move(cube));
 
         //Layout model
+        //*
         std::string layout_info_file_path = "Data/layout_input_data.csv";
         std::shared_ptr<LayoutModel> layout_model
             = std::make_unique<LayoutModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_LAYOUT, layout_info_file_path);    
@@ -91,7 +93,7 @@ namespace lve {
         cube.transform.translation = { 0.0f, 0.0f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
-
+        //*/
         
         //cube = LveGameObject::createGameObject();
         //cube.model = layout_model;

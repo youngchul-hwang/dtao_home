@@ -95,7 +95,7 @@ namespace lve {
 
         infile.Clear();
 
-        //*
+        /*
         printf("\n\nLayout Info Data\n\n");
         for (auto& cur_pattern : this->patterns) {
             printf("left/bottom/right/top/z-start/z-end = %.4f/%.4f/%.4f/%.4f/%.4f/%.4f/\n",

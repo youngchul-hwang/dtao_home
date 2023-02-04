@@ -98,8 +98,10 @@ namespace lve {
 		this->capasitors = {};
 		this->resistors = {};
 		this->file_path = "";
-		this->max_resistor = std::numeric_limits<double>::min();
-		this->min_resistor = std::numeric_limits<double>::max();
+		this->max_resistor_vertical = std::numeric_limits<double>::min();
+		this->min_resistor_vertical = std::numeric_limits<double>::max();
+		this->max_resistor_horizontal = std::numeric_limits<double>::min();
+		this->min_resistor_horizontal = std::numeric_limits<double>::max();
 		this->max_capacitor = std::numeric_limits<double>::min();
 		this->min_capacitor = std::numeric_limits<double>::max();
 	}
@@ -161,9 +163,10 @@ namespace lve {
 					node1.y = node2.y;
 				}
 
-				updateMinMaxRes(value);
 				description = line[PEXINFO_INDEX::PEXINFO_INDEX_DESCRIPTION];
-				this->resistors.push_back(PEXResistor(item_name, node1, node2, value, PEXResistor::checkDirectionFromDescription(description)));				
+				PEXResDirection resistor_direction = PEXResistor::checkDirectionFromDescription(description);
+				if( value > 0 ) updateMinMaxRes(value, resistor_direction ); //임의의 코드, 0보다 작은 저항은 무시
+				this->resistors.push_back(PEXResistor(item_name, node1, node2, value, resistor_direction));				
 			}
 			else if (item_name[0] == 'C') {
 				updateMinMaxCap(value);
@@ -172,9 +175,16 @@ namespace lve {
 		}
 	}
 
-	inline void PEXDataManager::updateMinMaxRes(const double& new_value) {
-		if (this->min_resistor > new_value) this->min_resistor = new_value;
-		if (this->max_resistor < new_value) this->max_resistor = new_value;
+	inline void PEXDataManager::updateMinMaxRes(const double& new_value, const PEXResDirection direction) {
+		if (direction == PEXResDirection::RES_DIRECTION_VERTICAL) {
+			if (this->min_resistor_vertical > new_value) this->min_resistor_vertical = new_value;
+			if (this->max_resistor_vertical < new_value) this->max_resistor_vertical = new_value;
+		}
+		else {
+			if (this->min_resistor_horizontal > new_value) this->min_resistor_horizontal = new_value;
+			if (this->max_resistor_horizontal < new_value) this->max_resistor_horizontal = new_value;
+		}
+		
 	}
 
 	inline void PEXDataManager::updateMinMaxCap(const double& new_value) {
@@ -188,8 +198,10 @@ namespace lve {
 		for (auto item : this->resistors) {
 			item.print();
 		}
-		printf("##Resistor Count : %lld, Max res = %10.5f, Min res = %10.5f\n", 
-			this->resistors.size(), this->getMaxResistorValue(), this->getMinResistorValue());
+		printf("##Resistor Count : %lld, Vertical Res Max = %10.5f, Min = %10.5f, Horizontal Res Max = %10.5f, Min = %10.5f\n", 
+			this->resistors.size(), 
+			this->getMaxResistorVerticalValue(), this->getMinResistorVerticalValue(),
+			this->getMaxResistorHorizontalValue(), this->getMinResistorHorizontalValue());
 
 		std::cout << "\n\nPEX Capacitors\n";
 		for (auto item : this->capasitors) {

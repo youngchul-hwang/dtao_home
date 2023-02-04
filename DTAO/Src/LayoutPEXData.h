@@ -202,8 +202,10 @@ namespace lve {
 		std::vector<PEXResistor> resistors;
 		std::vector<PEXCapacitor> capasitors;
 
-		double max_resistor;
-		double min_resistor;
+		double max_resistor_vertical;
+		double min_resistor_vertical;
+		double max_resistor_horizontal;
+		double min_resistor_horizontal;
 		double max_capacitor;
 		double min_capacitor;
 
@@ -216,13 +218,15 @@ namespace lve {
 		void printPEXData();
 
 
-		double getMinResistorValue() { return this->min_resistor; }
-		double getMaxResistorValue() { return this->max_resistor; }
+		double getMinResistorVerticalValue() { return this->min_resistor_vertical; }
+		double getMaxResistorVerticalValue() { return this->max_resistor_vertical; }
+		double getMinResistorHorizontalValue() { return this->min_resistor_horizontal; }
+		double getMaxResistorHorizontalValue() { return this->max_resistor_horizontal; }
 		double getMinCapacitorValue() { return this->min_capacitor; }
 		double getMaxCapacitorValue() { return this->max_capacitor; }
 
 	private:
-		void updateMinMaxRes(const double& value);
+		void updateMinMaxRes(const double& value, const PEXResDirection direction);
 		void updateMinMaxCap(const double& value);
 	};
 }//namespace lve

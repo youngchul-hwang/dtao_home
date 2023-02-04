@@ -4,18 +4,46 @@
 #include <limits>
 #include <iostream>
 
+#include "lve_model.hpp"
+
 namespace lve {
+    void KeyboardMovementController::visibleSetting(GLFWwindow* window, std::vector<LveGameObject>& gameObjects) {
+        MODEL_TYPE target_model_type = MODEL_TYPE::MODEL_TYPE_DEFAULT;
+        if (glfwGetKey(window, model_visible_set.layout_key) == GLFW_PRESS) model_visible_set.layout_key_pressed = true;
+        else if (glfwGetKey(window, model_visible_set.resistor_key) == GLFW_PRESS) model_visible_set.resistor_key_pressed = true;
+        else if (glfwGetKey(window, model_visible_set.capacitor_key) == GLFW_PRESS) model_visible_set.capacitor_key_pressed = true;
+        else if (glfwGetKey(window, model_visible_set.axis_key) == GLFW_PRESS) model_visible_set.axis_key_pressed = true;
+
+        if (glfwGetKey(window, model_visible_set.layout_key) == GLFW_RELEASE && model_visible_set.layout_key_pressed) {
+            model_visible_set.layout_key_pressed = false;
+            target_model_type = MODEL_TYPE::MODEL_TYPE_LAYOUT;
+        }
+        else if (glfwGetKey(window, model_visible_set.resistor_key) == GLFW_RELEASE && model_visible_set.resistor_key_pressed) {
+            model_visible_set.resistor_key_pressed = false;
+            target_model_type = MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR;
+        }
+        else if (glfwGetKey(window, model_visible_set.capacitor_key) == GLFW_RELEASE && model_visible_set.capacitor_key_pressed){
+            model_visible_set.capacitor_key_pressed = false;
+            target_model_type = MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR;
+        }
+        else if (glfwGetKey(window, model_visible_set.axis_key) == GLFW_RELEASE && model_visible_set.axis_key_pressed) {
+            model_visible_set.axis_key_pressed = false;
+            target_model_type = MODEL_TYPE::MODEL_TYPE_AXIS;
+        }        
+        
+        if (target_model_type != MODEL_TYPE::MODEL_TYPE_DEFAULT) {
+            for (auto& obj : gameObjects) {
+                if (obj.model->getModelType() == target_model_type) obj.model->toggleVisible();
+            }
+        }        
+        
+    }
 
     void KeyboardMovementController::moveInPlaneXZ(
         GLFWwindow* window, float dt, LveGameObject& gameObject) {
         glm::vec3 rotate{ 0 };
 
         //std::cout << "moveInPlaneXZ\n";
-
-        if (glfwGetKey(window, keys.enableEdgeLine) == GLFW_PRESS) {
-
-        }
-
         if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
         if (glfwGetKey(window, keys.lookLeft) == GLFW_PRESS) rotate.y -= 1.f;
         if (glfwGetKey(window, keys.lookUp) == GLFW_PRESS) rotate.x += 1.f;

@@ -42,7 +42,7 @@ namespace lve {
 
 	void PEXResistorModel::loadData(const std::string& file_path) {
 		this->pex_data.loadPEXData(file_path);
-		this->pex_data.printPEXData();
+		//this->pex_data.printPEXData();
 	}
 
 	void PEXResistorModel::makeCubes() {
@@ -108,23 +108,34 @@ namespace lve {
 
 	void PEXResistorModel::makeVertices() {
 		Vertex temp_vertex;
-		srand((unsigned int)time(NULL));
-
-		double max_res_value = this->pex_data.getMaxResistorValue();
-		double min_res_value = this->pex_data.getMinResistorValue();
 		
+		double max_vertical_res = this->pex_data.getMaxResistorVerticalValue();
+		//double min_vertical_res = this->pex_data.getMinResistorVerticalValue();
+		double max_horizontal_res = this->pex_data.getMaxResistorHorizontalValue();
+		//double min_horizontal_res = this->pex_data.getMinResistorHorizontalValue();
+		double max_res = max_vertical_res > max_horizontal_res ? max_vertical_res : max_horizontal_res;
+		
+		std::vector<PEXResistor>::iterator cur_resistor = this->pex_data.getResistors().begin();
+		double resistor_value{};
+		PEXResDirection resistor_direction{};
 		float temp_color[3] = { 0.0f, 0.0f, 0.0f };
-		for (const auto& cur_cube_vertices : this->cube_vertices) {
-			for (int i = 0; i < 8; ++i) {
-				temp_vertex.position = { cur_cube_vertices.vertex[i].x, cur_cube_vertices.vertex[i].y, cur_cube_vertices.vertex[i].z };
-				
-				temp_vertex.color = { static_cast<float>(rand()) / RAND_MAX,
-					static_cast<float>(rand()) / RAND_MAX,
-					static_cast<float>(rand()) / RAND_MAX };
+		for (const auto& cur_cube : this->cube_vertices) {
+			resistor_value = cur_resistor->getValue();
+			resistor_direction = cur_resistor->getDirection();
 
+			for (int i = 0; i < 8; ++i) {
+				temp_vertex.position = { 
+					cur_cube.vertex[i].x, cur_cube.vertex[i].y, cur_cube.vertex[i].z };
+				if (resistor_direction == PEXResDirection::RES_DIRECTION_VERTICAL) {
+					temp_vertex.color = { static_cast<float>(resistor_value / max_res), 0.0f, 0.0f };
+				}
+				else {
+					temp_vertex.color = { 0.0f, 0.0f, static_cast<float>(resistor_value / max_res) };
+				}
 				vertices.push_back(temp_vertex);
 			}//for i 0 to 8
-		}//for cur_cube : this->cubes
+			cur_resistor++;
+		}//for auto cur_vertices : this->cubes_vertices
 	}
 	
 

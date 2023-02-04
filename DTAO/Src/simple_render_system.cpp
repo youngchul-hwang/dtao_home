@@ -134,9 +134,9 @@ namespace lve {
             //push.color = obj.color;
             push.transform = projectionView * obj.transform.mat4();
 
-            if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_LAYOUT) {
+            if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_LAYOUT && obj.model->getVisible()) {
                 lvePipelineForLayoutFace->bind(commandBuffer);
-                push.alpha = 0.8f;
+                push.alpha = 0.45f;
 
                 vkCmdPushConstants(
                     commandBuffer, pipelineLayoutForLayoutFace,
@@ -145,12 +145,10 @@ namespace lve {
                 obj.model->bindVertexBuffer(commandBuffer);
                 obj.model->bindIndexBufferForFace(commandBuffer);
                 obj.model->drawForFace(commandBuffer);
-            }
 
-            if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_LAYOUT || 
-                obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_AXIS) {
                 lvePipelineForLayoutEdge->bind(commandBuffer);
-                push.color = glm::vec3(0.67f, 0.67f, 0.67f);
+                push.alpha = 1.0f;
+                push.color = glm::vec3(1.0f, 1.0f, 1.0f);
                 vkCmdPushConstants(
                     commandBuffer, pipelineLayoutForLayoutEdge,
                     VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
@@ -160,7 +158,19 @@ namespace lve {
                 obj.model->drawForEdge(commandBuffer);
             }
 
-            if(obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR) {
+            if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_AXIS && obj.model->getVisible()) {
+                lvePipelineForLayoutEdge->bind(commandBuffer);
+                push.color = glm::vec3(1.0f, 1.0f, 1.0f);
+                vkCmdPushConstants(
+                    commandBuffer, pipelineLayoutForLayoutEdge,
+                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0,
+                    sizeof(SimplePushConstantData), &push);
+                obj.model->bindVertexBuffer(commandBuffer);
+                obj.model->bindIndexBufferForEdge(commandBuffer);
+                obj.model->drawForEdge(commandBuffer);
+            }
+
+            if(obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR && obj.model->getVisible()) {
                 //*
                 lvePipelineForPEXResistor->bind(commandBuffer);
                 vkCmdPushConstants(
@@ -173,7 +183,7 @@ namespace lve {
                 //*/
             }
 
-            if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR) {
+            if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR && obj.model->getVisible()) {
                 /*
                 lvePipelineForPEX->bind(commandBuffer);
                 vkCmdPushConstants(
