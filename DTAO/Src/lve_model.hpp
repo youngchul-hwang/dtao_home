@@ -81,6 +81,7 @@ namespace lve {
         std::vector<uint32_t> indices_edge{};
 
         bool visible{true};
+        float opacity{ 1.0f };
 
     public:
         MODEL_TYPE getModelType() { return this->model_type; }
@@ -96,5 +97,7 @@ namespace lve {
         void setVisible(bool flag) { this->visible = flag; }
         bool getVisible() { return this->visible; }
         void toggleVisible() { this->visible = !this->visible; }
+        void updateOpacity(float amount);
+        float getOpacity() { return this->opacity; }
     };
 }  // namespace lve

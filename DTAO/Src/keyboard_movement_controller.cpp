@@ -9,10 +9,14 @@
 namespace lve {
     void KeyboardMovementController::visibleSetting(GLFWwindow* window, std::vector<LveGameObject>& gameObjects) {
         MODEL_TYPE target_model_type = MODEL_TYPE::MODEL_TYPE_DEFAULT;
+        bool opacity_mode = false;
+        double opacity = 0.0;
         if (glfwGetKey(window, model_visible_set.layout_key) == GLFW_PRESS) model_visible_set.layout_key_pressed = true;
         else if (glfwGetKey(window, model_visible_set.resistor_key) == GLFW_PRESS) model_visible_set.resistor_key_pressed = true;
         else if (glfwGetKey(window, model_visible_set.capacitor_key) == GLFW_PRESS) model_visible_set.capacitor_key_pressed = true;
         else if (glfwGetKey(window, model_visible_set.axis_key) == GLFW_PRESS) model_visible_set.axis_key_pressed = true;
+        else if (glfwGetKey(window, model_visible_set.opacity_plus_key) == GLFW_PRESS) model_visible_set.opacity_plus_key_pressed = true;
+        else if (glfwGetKey(window, model_visible_set.opacity_minus_key) == GLFW_PRESS) model_visible_set.opacity_minus_key_pressed = true;
 
         if (glfwGetKey(window, model_visible_set.layout_key) == GLFW_RELEASE && model_visible_set.layout_key_pressed) {
             model_visible_set.layout_key_pressed = false;
@@ -29,14 +33,28 @@ namespace lve {
         else if (glfwGetKey(window, model_visible_set.axis_key) == GLFW_RELEASE && model_visible_set.axis_key_pressed) {
             model_visible_set.axis_key_pressed = false;
             target_model_type = MODEL_TYPE::MODEL_TYPE_AXIS;
-        }        
+        }
+        else if (glfwGetKey(window, model_visible_set.opacity_plus_key) == GLFW_RELEASE && model_visible_set.opacity_plus_key_pressed) {
+            model_visible_set.opacity_plus_key_pressed = false;
+            opacity_mode = true;
+            opacity = 0.1f;
+            target_model_type = MODEL_TYPE::MODEL_TYPE_LAYOUT;
+        }
+        else if (glfwGetKey(window, model_visible_set.opacity_minus_key) == GLFW_RELEASE && model_visible_set.opacity_minus_key_pressed) {
+            model_visible_set.opacity_minus_key_pressed = false;
+            opacity_mode = true;
+            opacity = -0.1f;
+            target_model_type = MODEL_TYPE::MODEL_TYPE_LAYOUT;
+        }
         
         if (target_model_type != MODEL_TYPE::MODEL_TYPE_DEFAULT) {
             for (auto& obj : gameObjects) {
-                if (obj.model->getModelType() == target_model_type) obj.model->toggleVisible();
+                if (obj.model->getModelType() == target_model_type) {
+                    if (opacity_mode) obj.model->updateOpacity(opacity);
+                    else obj.model->toggleVisible();
+                }
             }
-        }        
-        
+        }       
     }
 
     void KeyboardMovementController::moveInPlaneXZ(

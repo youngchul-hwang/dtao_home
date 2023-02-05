@@ -29,6 +29,8 @@ namespace lve {
             int axis_key = GLFW_KEY_A;
             int vertical_resistor_key = GLFW_KEY_V;
             int horizontal_resistor_key = GLFW_KEY_H;
+            int opacity_plus_key = GLFW_KEY_O;
+            int opacity_minus_key = GLFW_KEY_P;
 
             bool edge_key_pressed = false;
             bool layout_key_pressed = false;
@@ -36,7 +38,10 @@ namespace lve {
             bool capacitor_key_pressed = false;
             bool axis_key_pressed = false;
             bool vertical_resistor_key_pressed = false;
-            bool horizontal_resistor_key_pressed = false;            
+            bool horizontal_resistor_key_pressed = false;
+            bool opacity_plus_key_pressed = false;
+            bool opacity_minus_key_pressed = false;
+
         };
 
         void moveInPlaneXZ(GLFWwindow* window, float dt, LveGameObject& gameObject);

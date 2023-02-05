@@ -221,4 +221,10 @@ namespace lve {
         indices.push_back(4); 
         indices.push_back(5);
     }
+
+    void LveModel::updateOpacity(float amount) {
+        this->opacity += amount;
+        if (this->opacity > 1.0f) this->opacity = 1.0f;
+        if (this->opacity < 0.0f) this->opacity = 0.0f;
+    }
 }  // namespace lve

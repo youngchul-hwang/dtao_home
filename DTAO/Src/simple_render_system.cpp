@@ -136,7 +136,7 @@ namespace lve {
 
             if (obj.model->getModelType() == MODEL_TYPE::MODEL_TYPE_LAYOUT && obj.model->getVisible()) {
                 lvePipelineForLayoutFace->bind(commandBuffer);
-                push.alpha = 0.45f;
+                push.alpha = obj.model->getOpacity();;
 
                 vkCmdPushConstants(
                     commandBuffer, pipelineLayoutForLayoutFace,
