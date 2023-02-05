@@ -2,11 +2,26 @@
 
 #include "lve_game_object.hpp"
 #include "lve_window.hpp"
+#include "lve_camera.hpp"
 
 namespace lve {
     class KeyboardMovementController {
     public:
         struct KeyMappings {
+            int moveLeft = GLFW_KEY_A;
+            int moveRight = GLFW_KEY_D;
+            int moveForward = GLFW_KEY_W;
+            int moveBackward = GLFW_KEY_S;
+            int moveUp = GLFW_KEY_E;
+            int moveDown = GLFW_KEY_Q;
+            int lookLeft = GLFW_KEY_LEFT;
+            int lookRight = GLFW_KEY_RIGHT;
+            int lookUp = GLFW_KEY_UP;
+            int lookDown = GLFW_KEY_DOWN;
+            int mouseLeft = GLFW_MOUSE_BUTTON_LEFT;
+        };
+
+        struct CameraMoveKeyMappings {
             int moveLeft = GLFW_KEY_A;
             int moveRight = GLFW_KEY_D;
             int moveForward = GLFW_KEY_W;
@@ -26,7 +41,7 @@ namespace lve {
             int layout_key = GLFW_KEY_L;
             int resistor_key = GLFW_KEY_R;
             int capacitor_key = GLFW_KEY_C;
-            int axis_key = GLFW_KEY_A;
+            int axis_key = GLFW_KEY_X;
             int vertical_resistor_key = GLFW_KEY_V;
             int horizontal_resistor_key = GLFW_KEY_H;
             int opacity_plus_key = GLFW_KEY_O;
@@ -46,6 +61,9 @@ namespace lve {
 
         void moveInPlaneXZ(GLFWwindow* window, float dt, LveGameObject& gameObject);
         
+        void moveCamera(GLFWwindow* window, float dt, LveCamera& camera);
+        CameraMoveKeyMappings camera_move_key;
+
         void visibleSetting(GLFWwindow* window, std::vector<LveGameObject>& gameObjects);
         ModelVisibleSet model_visible_set;
 

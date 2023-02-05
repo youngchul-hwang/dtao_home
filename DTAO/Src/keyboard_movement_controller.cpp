@@ -57,6 +57,32 @@ namespace lve {
         }       
     }
 
+    void KeyboardMovementController::moveCamera(GLFWwindow* window, float dt, LveCamera& camera) {
+                
+        float scale = 0.0f;
+        float rotate_lr = 0.0f;
+        float rotate_ud = 0.0f;
+
+        if (glfwGetKey(window, camera_move_key.moveForward) == GLFW_PRESS) scale = 1.001f;
+        if (glfwGetKey(window, camera_move_key.moveBackward) == GLFW_PRESS) scale = 0.999f;
+        if (glfwGetKey(window, camera_move_key.moveRight) == GLFW_PRESS) rotate_lr = 0.01f;
+        if (glfwGetKey(window, camera_move_key.moveLeft) == GLFW_PRESS) rotate_lr = -0.01f;
+        if (glfwGetKey(window, camera_move_key.moveUp) == GLFW_PRESS) rotate_ud = 0.01f;
+        if (glfwGetKey(window, camera_move_key.moveDown) == GLFW_PRESS) rotate_ud = -0.01f;
+
+        if (glm::dot(rotate_lr, rotate_lr) > std::numeric_limits<float>::epsilon()) {
+            camera.viewMatrix = glm::rotate(camera.getView(), glm::radians(rotate_lr), glm::vec3(0.0f, 0.0f, 1.0f));
+        }
+
+        if (glm::dot(rotate_ud, rotate_ud) > std::numeric_limits<float>::epsilon()) {
+            camera.viewMatrix = glm::rotate(camera.getView(), glm::radians(rotate_ud), glm::vec3(0.0f, 1.0f, 0.0f));
+        }
+
+        if (glm::dot(scale, scale) > std::numeric_limits<float>::epsilon()) {
+           camera.viewMatrix = glm::scale(camera.getView(), glm::vec3(scale, scale, scale));
+        }
+    }
+
     void KeyboardMovementController::moveInPlaneXZ(
         GLFWwindow* window, float dt, LveGameObject& gameObject) {
         glm::vec3 rotate{ 0 };

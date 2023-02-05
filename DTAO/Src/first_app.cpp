@@ -48,7 +48,8 @@ namespace lve {
                 std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
             currentTime = newTime;
 
-            cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject);
+            //cameraController.moveInPlaneXZ(lveWindow.getGLFWwindow(), frameTime, viewerObject);
+            cameraController.moveCamera(lveWindow.getGLFWwindow(), frameTime, camera);
             //camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
             cameraController.visibleSetting(lveWindow.getGLFWwindow(), this->gameObjects);
 
