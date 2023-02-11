@@ -71,15 +71,15 @@ namespace lve {
 
     void FirstApp::loadGameObjects() {
 
-        //PEX model
-        
-        std::string pex_info_file_path = "Data/MVP_PEX_RC_r1_0130.csv";
-
-        //pex_info_file_path = "Data/pex_res_test_simple.csv";
-        std::shared_ptr<PEXResistorModel> pex_model
-            = std::make_unique<PEXResistorModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR, pex_info_file_path);
+        //PEX Resistor model
+        std::string res_info_file_path = "Data/MVP_PEX_RC_r1_0130_0208version.csv";
+        std::shared_ptr<PEXResistorModel> res_model
+            = std::make_unique<PEXResistorModel>(
+                this->lveDevice, 
+                MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR, 
+                res_info_file_path);
         auto cube = LveGameObject::createGameObject();
-        cube.model = pex_model;
+        cube.model = res_model;
         cube.transform.translation = { 0.f, 0.f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
@@ -88,14 +88,28 @@ namespace lve {
         //*
         std::string layout_info_file_path = "Data/layout_input_data.csv";
         std::shared_ptr<LayoutModel> layout_model
-            = std::make_unique<LayoutModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_LAYOUT, layout_info_file_path);    
+            = std::make_unique<LayoutModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_LAYOUT, layout_info_file_path);
         cube = LveGameObject::createGameObject();
         cube.model = layout_model;
         cube.transform.translation = { 0.0f, 0.0f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
         //*/
-        
+
+        //PEX Capacitor model
+        std::string cap_info_file_path = "Data/MVP_PEX_RC_r1_0130_0208version.csv";
+        std::shared_ptr<PEXCapacitorModel> cap_model
+            = std::make_unique<PEXCapacitorModel>(
+                this->lveDevice,
+                MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR,
+                cap_info_file_path,
+                layout_model->getLayoutDataManager() );
+        cube = LveGameObject::createGameObject();
+        cube.model = cap_model;
+        cube.transform.translation = { 0.f, 0.f, 0.0f };
+        cube.transform.scale = { 1.0f, 1.0f, 1.0f };
+        gameObjects.push_back(std::move(cube));
+
         //cube = LveGameObject::createGameObject();
         //cube.model = layout_model;
         //cube.transform.translation = { -0.5f, 0.0f, 0.0f };

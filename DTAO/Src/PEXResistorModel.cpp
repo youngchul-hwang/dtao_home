@@ -41,8 +41,8 @@ namespace lve {
 	}
 
 	void PEXResistorModel::loadData(const std::string& file_path) {
-		this->pex_data.loadPEXData(file_path);
-		//this->pex_data.printPEXData();
+		this->pex_data.loadData(file_path);
+		//this->pex_data.printData();
 	}
 
 	void PEXResistorModel::makeCubes() {
@@ -169,3 +169,4 @@ namespace lve {
 
 	
 }//namespace lve
+

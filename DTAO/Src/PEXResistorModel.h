@@ -16,7 +16,7 @@ namespace lve {
         PEXResistorModel& operator=(const PEXResistorModel&) = delete;
 
     private:
-        PEXDataManager pex_data;
+        PEXResistorDataManager pex_data;
         double res_cube_thickness;
         
 

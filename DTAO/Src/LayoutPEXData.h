@@ -30,18 +30,26 @@ namespace lve {
 
 	enum PEXINFO_INDEX {
 		PEXINFO_INDEX_NAME = 0,
+
+		PEXINFO_INDEX_NODE1_NAME = 1,
 		PEXINFO_INDEX_NODE1_X = 2,
 		PEXINFO_INDEX_NODE1_Y = 3,
 		PEXINFO_INDEX_NODE1_ZSTART = 4,
 		PEXINFO_INDEX_NODE1_ZEND = 5,
 		PEXINFO_INDEX_NODE1_LVL = 6,
-		PEXINFO_INDEX_NODE2_X = 8,
-		PEXINFO_INDEX_NODE2_Y = 9,
-		PEXINFO_INDEX_NODE2_ZSTART = 10,
-		PEXINFO_INDEX_NODE2_ZEND = 11,
-		PEXINFO_INDEX_NODE2_LVL = 12,
-		PEXINFO_INDEX_VALUE = 13,
-		PEXINFO_INDEX_DESCRIPTION = 14,
+		PEXINFO_INDEX_NODE1_LAYER_NUMBER = 7,
+		PEXINFO_INDEX_NODE1_LAYER_DATATYPE = 8,
+		PEXINFO_INDEX_NODE2_NAME = 9,
+		PEXINFO_INDEX_NODE2_X = 10,
+		PEXINFO_INDEX_NODE2_Y = 11,
+		PEXINFO_INDEX_NODE2_ZSTART = 12,
+		PEXINFO_INDEX_NODE2_ZEND = 13,
+		PEXINFO_INDEX_NODE2_LVL = 14,
+		PEXINFO_INDEX_NODE2_LAYER_NUMBER = 15,
+		PEXINFO_INDEX_NODE2_LAYER_DATATYPE = 16,
+
+		PEXINFO_INDEX_VALUE = 17,
+		PEXINFO_INDEX_DESCRIPTION = 18,
 		PEXINFO_INDEX_DEFULT = 999
 	};
 	
@@ -75,10 +83,11 @@ namespace lve {
 		double y;
 		double z_start;
 		double z_end;
-		node() : x{}, y{}, z_start {}, z_end{} {};
-		node(const double& x_, const double & y_, double & z_s, double & z_e ) 
-			: x(x_), y(y_), z_start(z_s), z_end(z_e) {}
+		unsigned int layer_number;
+		unsigned int layer_datatype;
+		std::string name;
 	};
+	typedef struct node pex_node;
 
 	class LayoutItem {
 	public:
@@ -88,8 +97,8 @@ namespace lve {
 
 	public:
 		cube_info pattern;
-		int layer_number;
-		int layer_datatype;
+		unsigned int layer_number;
+		unsigned int layer_datatype;
 		LAYOUT_LAYER_TYPE layer_type;
 	};
 
@@ -189,45 +198,64 @@ namespace lve {
 		void print();
 	};
 
-
-	class PEXDataManager
+	
+	class PEXResistorDataManager
 	{
 	public:
-		PEXDataManager();
-		~PEXDataManager();
+		PEXResistorDataManager();
+		~PEXResistorDataManager();
 
 	private:
 		std::string file_path;
 
 		std::vector<PEXResistor> resistors;
-		std::vector<PEXCapacitor> capasitors;
 
 		double max_resistor_vertical;
 		double min_resistor_vertical;
 		double max_resistor_horizontal;
 		double min_resistor_horizontal;
-		double max_capacitor;
-		double min_capacitor;
-
+		
 	public:
 		std::vector<PEXResistor>& getResistors() { return this->resistors; }
-		std::vector<PEXCapacitor>& getCapacitors() { return this->capasitors; }
-
-		void loadPEXData(const std::string file_path);
+		
+		void loadData(const std::string file_path);
 		void clear();
-		void printPEXData();
-
+		void printData();
 
 		double getMinResistorVerticalValue() { return this->min_resistor_vertical; }
 		double getMaxResistorVerticalValue() { return this->max_resistor_vertical; }
 		double getMinResistorHorizontalValue() { return this->min_resistor_horizontal; }
 		double getMaxResistorHorizontalValue() { return this->max_resistor_horizontal; }
+
+	private:
+		void updateMinMaxRes(const double& value, const PEXResDirection direction);
+	};
+
+	class PEXCapacitorDataManager
+	{
+	public:
+		PEXCapacitorDataManager();
+		~PEXCapacitorDataManager();
+
+	private:
+		std::string file_path;
+
+		std::vector<PEXCapacitor> capasitors;
+
+		double max_capacitor;
+		double min_capacitor;
+
+	public:
+		std::vector<PEXCapacitor>& getCapacitors() { return this->capasitors; }
+
+		void loadData(const std::string file_path);
+		void clear();
+		void printData();
+
 		double getMinCapacitorValue() { return this->min_capacitor; }
 		double getMaxCapacitorValue() { return this->max_capacitor; }
 
 	private:
-		void updateMinMaxRes(const double& value, const PEXResDirection direction);
 		void updateMinMaxCap(const double& value);
 	};
 }//namespace lve
-

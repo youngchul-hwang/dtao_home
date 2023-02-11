@@ -27,7 +27,8 @@ namespace lve {
 		void makeIndicesForFace();
 		void makeIndicesForEdge();
 
-		
+		LayoutDataManager* getLayoutDataManager() {return &this->layout_data;}
+			
 	};
 
 }//namespace lve
