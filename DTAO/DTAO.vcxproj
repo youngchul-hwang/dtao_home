@@ -138,6 +138,7 @@
     <None Include="Data\layout_input_data_old_format.csv" />
     <None Include="Data\layout_input_data.csv" />
     <None Include="Data\MVP_PEX_RC_r1_0130.csv" />
+    <None Include="Data\MVP_PEX_RC_r1_0130_0208version.csv" />
     <None Include="Data\pex_cap_test.csv" />
     <None Include="Data\pex_res_test_beol_only.csv" />
     <None Include="Data\pex_res_test_simple.csv" />

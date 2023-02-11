@@ -51,6 +51,9 @@
     <None Include="Data\pex_res_test_simple.csv">
       <Filter>리소스 파일</Filter>
     </None>
+    <None Include="Data\MVP_PEX_RC_r1_0130_0208version.csv">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Src\first_app.cpp">
