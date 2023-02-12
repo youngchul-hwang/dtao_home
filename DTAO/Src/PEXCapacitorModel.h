@@ -7,6 +7,8 @@
 #include <map>
 #include <set>
 #include <limits>
+#include <thread>
+#include <queue>
 
 namespace lve {
     typedef unsigned int uint;
@@ -62,6 +64,9 @@ namespace lve {
 
         double max_cap = std::numeric_limits<double>::min();
         
+        size_t num_threads = { 4 };
+        std::vector<std::thread> threads;
+
     public:
         virtual void makeRenderingData(const std::string& file_path = "");
         virtual void loadData(const std::string& file_path = "");
@@ -78,8 +83,7 @@ namespace lve {
         void makeLayerToCapNodeMap();
         void makeLayerToPatternCapMap();
 
-        void matchCapWithPattern(std::vector<cap_node>& caps, std::vector<pattern_cap>& patterns, 
-            uint target_layer_number, uint target_layer_datatype);
+        void matchCapWithPattern(std::vector<cap_node*>& caps, std::vector<pattern_cap*>& patterns);
         void matchCapWithPattern(
             std::map<std::string, std::vector<cap_node*>>& cap_layer_map_,
             std::map<std::string, std::vector<pattern_cap*>>& pattern_layer_map_,

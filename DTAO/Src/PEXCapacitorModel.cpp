@@ -114,12 +114,64 @@ namespace lve {
         makeLayerToPatternCapMap();
 
         
+        //병렬처리로 변경해야 함
         //matchCapWithPattern(this->cap_layer_map, this->pattern_layer_map, 17, 0);
         for (auto& cur_layer : this->layers) {
-            matchCapWithPattern(this->layer_to_cap_node_map, this->layer_to_pattern_cap_map, cur_layer.first, cur_layer.second);
+            string layer = getLayerString(cur_layer.first, cur_layer.second);
+            map<string, vector<cap_node*>>::iterator it_layer_to_cap_node_map = this->layer_to_cap_node_map.find(layer);
+            map<string, vector<pattern_cap*>>::iterator it_layer_to_pattern_cap_map = this->layer_to_pattern_cap_map.find(layer);
+            if (it_layer_to_cap_node_map == this->layer_to_cap_node_map.end()
+                || it_layer_to_pattern_cap_map == this->layer_to_pattern_cap_map.end()) continue;;
+
+            std::vector<cap_node*>& caps = it_layer_to_cap_node_map->second;
+            std::vector<pattern_cap*>& patterns = it_layer_to_pattern_cap_map->second;
+
+            matchCapWithPattern(caps, patterns);
+            //matchCapWithPattern(this->layer_to_cap_node_map, this->layer_to_pattern_cap_map, cur_layer.first, cur_layer.second);
         }
     }
 
+    void PEXCapacitorModel::matchCapWithPattern(
+        std::vector<cap_node*>& caps,
+        std::vector<pattern_cap*>& patterns
+        ) {
+
+        for (auto& cap : caps) {
+            for (auto& pattern : patterns) {            
+                if (isPatternIncludeCap(*pattern, *cap)) {
+                    pattern->cap_count++;
+                    pattern->cap_value += cap->value;
+                    break;
+                }
+            }//for cap : caps
+        }//for pattern : patterns
+
+    }
+
+    void PEXCapacitorModel::matchCapWithPattern(
+        std::map<std::string, std::vector<cap_node*>>& cap_layer_map_,
+        std::map<std::string, std::vector<pattern_cap*>>& pattern_layer_map_,
+        uint target_layer_number, uint target_layer_datatype) {
+
+        //string layer = std::to_string(target_layer_number) + "." + std::to_string(target_layer_datatype);
+        string layer = getLayerString(target_layer_number, target_layer_datatype);
+        std::map<std::string, std::vector<cap_node*>>::iterator it_cap_layer_map = cap_layer_map_.find(layer);
+        std::map<std::string, std::vector<pattern_cap*>>::iterator it_pattern_layer_map = pattern_layer_map_.find(layer);
+        if (it_cap_layer_map == cap_layer_map_.end() || it_pattern_layer_map == pattern_layer_map_.end()) return;
+
+        std::vector<cap_node*>& caps = it_cap_layer_map->second;
+        std::vector<pattern_cap*>& patterns = it_pattern_layer_map->second;
+
+        for (auto& cap : caps) {
+            for (auto& pattern : patterns) {
+                if (isPatternIncludeCap(*pattern, *cap)) {
+                    pattern->cap_count++;
+                    pattern->cap_value += cap->value;
+                    break;
+                }
+            }//for cap : caps            
+        }//for pattern : patterns
+    }
 
     void PEXCapacitorModel::makeLayerToCapNodeMap() {
         this->layer_to_cap_node_map.clear();
@@ -173,55 +225,12 @@ namespace lve {
         }
     }
 
-    void PEXCapacitorModel::matchCapWithPattern(
-        std::map<std::string, std::vector<cap_node*>>& cap_layer_map_,
-        std::map<std::string, std::vector<pattern_cap*>>& pattern_layer_map_,
-        uint target_layer_number, uint target_layer_datatype){
-
-        //string layer = std::to_string(target_layer_number) + "." + std::to_string(target_layer_datatype);
-        string layer = getLayerString(target_layer_number, target_layer_datatype);
-        std::map<std::string, std::vector<cap_node*>>::iterator it_cap_layer_map = cap_layer_map_.find(layer);
-        std::map<std::string, std::vector<pattern_cap*>>::iterator it_pattern_layer_map = pattern_layer_map_.find(layer);
-        if (it_cap_layer_map == cap_layer_map_.end() || it_pattern_layer_map == pattern_layer_map_.end()) return;
-
-        std::vector<cap_node*>& caps = it_cap_layer_map->second;
-        std::vector<pattern_cap*>& patterns = it_pattern_layer_map->second;
-
-        for (auto& cap : caps) {
-            for (auto& pattern : patterns) {            
-                if (isPatternIncludeCap(*pattern, *cap)) {
-                    pattern->cap_count++;
-                    pattern->cap_value += cap->value;                    
-                    break;
-                }
-            }//for cap : caps            
-        }//for pattern : patterns
-    }
 
     inline std::string PEXCapacitorModel::getLayerString(uint layer_number, uint layer_datatype) {
         return (std::string(std::to_string(layer_number) + "." + std::to_string(layer_datatype)));
     }
 
-    void PEXCapacitorModel::matchCapWithPattern(
-        std::vector<cap_node>& caps,
-        std::vector<pattern_cap>& patterns,
-        uint target_layer_number,
-        uint target_layer_datatype) {
-
-        for (auto& pattern : patterns) {
-            if (pattern.layer_number != target_layer_number || pattern.layer_datatype != target_layer_datatype) continue;
-            for (auto& cap : caps) {
-                if (cap.layer_number != target_layer_number || cap.layer_datatype != target_layer_datatype) continue;
-                if (isPatternIncludeCap(pattern, cap)) {
-                    pattern.cap_count++;
-                    pattern.cap_value += cap.value;
-                }
-            }//for cap : caps
-        }//for pattern : patterns
-
-    }
-
-
+ 
     bool PEXCapacitorModel::isPatternIncludeCap(const pattern_cap& pattern, const cap_node& cap) {
         if (cap.x < pattern.pattern.minx) return false;
         if (cap.x > pattern.pattern.maxx) return false;
