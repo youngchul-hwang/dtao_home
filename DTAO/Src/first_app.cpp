@@ -74,58 +74,52 @@ namespace lve {
         //PEX Resistor model
         std::string res_info_file_path = "Data/MVP_PEX_RC_r1_0130_0208version.csv";
         std::shared_ptr<PEXResistorModel> res_model
-            = std::make_unique<PEXResistorModel>(
-                this->lveDevice, 
-                MODEL_TYPE::MODEL_TYPE_PEX_RESISTOR, 
-                res_info_file_path);
+            = std::make_unique<PEXResistorModel>(this->lveDevice, MODEL_TYPE_PEX_RESISTOR, res_info_file_path);
+
+        //Layout model
+        std::string layout_info_file_path = "Data/layout_input_data.csv";
+        std::shared_ptr<LayoutModel> layout_model
+            = std::make_unique<LayoutModel>(this->lveDevice, MODEL_TYPE_LAYOUT, layout_info_file_path);
+        layout_model->opacity = 0.5f;
+
+        //PEX Capacitor model
+        std::string cap_info_file_path = "Data/MVP_PEX_RC_r1_0130_0208version.csv";
+        std::shared_ptr<PEXCapacitorModel> cap_model
+            = std::make_unique<PEXCapacitorModel>(this->lveDevice, MODEL_TYPE_PEX_CAPACITOR, cap_info_file_path, layout_model->getLayoutDataManager());
+
+        //Axis model
+        std::shared_ptr<LveModel> axis_model
+            = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE_AXIS);
+
+
+        //Resistor Object
         auto cube = LveGameObject::createGameObject();
         cube.model = res_model;
         cube.transform.translation = { 0.f, 0.f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
 
-        //Layout model
-        //*
-        std::string layout_info_file_path = "Data/layout_input_data.csv";
-        std::shared_ptr<LayoutModel> layout_model
-            = std::make_unique<LayoutModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_LAYOUT, layout_info_file_path);
-        cube = LveGameObject::createGameObject();
-        cube.model = layout_model;
-        cube.transform.translation = { 0.0f, 0.0f, 0.0f };
-        cube.transform.scale = { 1.0f, 1.0f, 1.0f };
-        gameObjects.push_back(std::move(cube));
-        //*/
-
-        //PEX Capacitor model
-        std::string cap_info_file_path = "Data/MVP_PEX_RC_r1_0130_0208version.csv";
-        std::shared_ptr<PEXCapacitorModel> cap_model
-            = std::make_unique<PEXCapacitorModel>(
-                this->lveDevice,
-                MODEL_TYPE::MODEL_TYPE_PEX_CAPACITOR,
-                cap_info_file_path,
-                layout_model->getLayoutDataManager() );
+        //Capacitor Object
         cube = LveGameObject::createGameObject();
         cube.model = cap_model;
         cube.transform.translation = { 0.f, 0.f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
 
-        //cube = LveGameObject::createGameObject();
-        //cube.model = layout_model;
-        //cube.transform.translation = { -0.5f, 0.0f, 0.0f };
-        //cube.transform.scale = { 1.0f, 1.0f, 1.0f };
-        //gameObjects.push_back(std::move(cube));
+        //Layout Object     
+        cube = LveGameObject::createGameObject();
+        cube.model = layout_model;
+        cube.transform.translation = { 0.0f, 0.0f, 0.0f };
+        cube.transform.scale = { 1.0f, 1.0f, 1.0f };
+        gameObjects.push_back(std::move(cube));
         
-
-        //Axis model
-        std::shared_ptr<LveModel> axis_model
-            = std::make_unique<LveModel>(this->lveDevice, MODEL_TYPE::MODEL_TYPE_AXIS);
+        //Axis Object
         cube = LveGameObject::createGameObject();
         cube.model = axis_model;
         cube.transform.translation = { 0.0f, 0.0f, 0.0f };
         cube.transform.scale = { 1.0f, 1.0f, 1.0f };
         gameObjects.push_back(std::move(cube));
-        //*/
+        
     }
 
 }  // namespace lve

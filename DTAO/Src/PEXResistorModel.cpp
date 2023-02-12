@@ -10,7 +10,7 @@
 namespace lve {
 	PEXResistorModel::PEXResistorModel(LveDevice& device, MODEL_TYPE model_type, const std::string& data_file) 
 		: LveModel(device, model_type), pex_data{} {
-		this->res_cube_thickness = 0.01;
+		this->res_cube_thickness = 0.005;
 		this->makeRenderingData(data_file);
 		this->createBuffers();
 	}

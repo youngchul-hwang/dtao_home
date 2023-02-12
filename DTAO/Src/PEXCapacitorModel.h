@@ -5,27 +5,36 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <set>
+#include <limits>
 
 namespace lve {
+    typedef unsigned int uint;
+
     class PEXCapacitorModel : public LveModel
     {
     public:
         struct cap_node {
             double x;
             double y;
-            unsigned int layer_number;
-            unsigned int layer_datatype;
+            uint layer_number;
+            uint layer_datatype;
             std::string name;
             double value;
-            unsigned int connected_count;            
+            uint connected_count;            
         };
 
-        struct pattern_w_cap {
+        struct pattern_cap {
             cube_info pattern;
-            unsigned int layer_number;
-            unsigned int layer_datatype;
+            uint layer_number;
+            uint layer_datatype;
             double cap_value;
-            unsigned int cap_count;
+            double normalized_cap_value;
+            uint cap_count;
+            pattern_cap(cube_info& pattern_, uint number_, uint datatype_, double value_, double norm_value_, uint count_ ) :
+                pattern(pattern_), layer_number(number_), 
+                layer_datatype(datatype_), cap_value(value_), cap_count(count_), normalized_cap_value(norm_value_) {}
+            
         };
 
     public:
@@ -40,11 +49,18 @@ namespace lve {
 
     private:
         PEXCapacitorDataManager pex_data;
-        std::map<std::string, size_t> cap_nodeidx_map;
+        std::map<std::string, size_t> cap_node_name_to_index_map;
         LayoutDataManager* layout_data = nullptr;
 
         std::vector<cap_node> cap_nodes;
-        std::vector<pattern_w_cap> pattern_w_caps;
+        std::map<std::string, std::vector<cap_node*>> layer_to_cap_node_map;
+
+        std::vector<pattern_cap> pattern_caps;
+        std::map<std::string, std::vector<pattern_cap*>> layer_to_pattern_cap_map;
+
+        std::set<std::pair<uint, uint>> layers;
+
+        double max_cap = std::numeric_limits<double>::min();
         
     public:
         virtual void makeRenderingData(const std::string& file_path = "");
@@ -52,18 +68,39 @@ namespace lve {
         virtual void makeVertices();
         virtual void makeIndices();
 
+        void makeCubeVertices();
+        
     private:
         void makeCapNodesFromPEXData();
-        void makePatternWCapsFromLayoutData();
+        void makePatternCapsFromLayoutData();
+
+        void attachCapToPattern();
+        void makeLayerToCapNodeMap();
+        void makeLayerToPatternCapMap();
+
+        void matchCapWithPattern(std::vector<cap_node>& caps, std::vector<pattern_cap>& patterns, 
+            uint target_layer_number, uint target_layer_datatype);
+        void matchCapWithPattern(
+            std::map<std::string, std::vector<cap_node*>>& cap_layer_map_,
+            std::map<std::string, std::vector<pattern_cap*>>& pattern_layer_map_,
+            uint target_layer_number, uint target_layer_datatype);
+        bool isPatternIncludeCap(const pattern_cap& pattern, const cap_node& cap);
 
         void setLayoutDataManager(LayoutDataManager* layout_data_) { this->layout_data = layout_data_; }
         void addNewCapNode(pex_node& new_node, double value);
-        //void makeCubeVertices();
-        //void makeCubes();
-        //void makeCube(const PEXResistor& in_res, cube_info& out_cube, PEXResDirection direction);
-        //void setResCubeThickness(double value) { this->res_cube_thickness = value; }
+
+        std::string getLayerString(uint layer_number, uint layer_datatype);
+
+        void normalizePatternCap();
+        
+
+        
 
         void printCapNodes();
+        void printPatternCaps();
+        void printLayerToCapNodeMap();
+        void printLayerToPatternCapMap(const char* msg = "");
+        void printLayerList();
     };
 }
 
