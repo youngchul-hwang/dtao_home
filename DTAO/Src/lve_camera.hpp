@@ -4,6 +4,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
 
 namespace lve {
 
@@ -21,9 +22,17 @@ class LveCamera {
 
   const glm::mat4& getProjection() const { return projectionMatrix; }
   const glm::mat4& getView() const { return viewMatrix; }
+  void decomposeView(glm::mat4 viewMat);
 
  public:
   glm::mat4 projectionMatrix{1.f};
   glm::mat4 viewMatrix{1.f};
+  
+  glm::vec3 scale_d;
+  glm::quat rotation_d;
+  glm::vec3 translation_d;
+  glm::vec3 skew_d;
+  glm::vec4 perspective_d;
+  
 };
 }  // namespace lve
