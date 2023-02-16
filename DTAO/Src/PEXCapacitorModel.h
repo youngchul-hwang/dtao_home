@@ -9,6 +9,8 @@
 #include <limits>
 #include <thread>
 #include <queue>
+#include <mutex>
+#include <cstdio>
 
 namespace lve {
     typedef unsigned int uint;
@@ -66,6 +68,8 @@ namespace lve {
         
         size_t num_threads = { 4 };
         std::vector<std::thread> threads;
+        std::queue<std::string> layers_queue;
+        std::mutex mutex_layers_queue;
 
     public:
         virtual void makeRenderingData(const std::string& file_path = "");
@@ -83,6 +87,7 @@ namespace lve {
         void makeLayerToCapNodeMap();
         void makeLayerToPatternCapMap();
 
+        void matchCapWithPatternThread(std::queue<std::string>* layers, std::mutex* mutex_);
         void matchCapWithPattern(std::vector<cap_node*>& caps, std::vector<pattern_cap*>& patterns);
         void matchCapWithPattern(
             std::map<std::string, std::vector<cap_node*>>& cap_layer_map_,
@@ -96,13 +101,15 @@ namespace lve {
         std::string getLayerString(uint layer_number, uint layer_datatype);
 
         void normalizePatternCap();
+
+        void makeLayersQueueForThreadJob();
         
 
         
 
         void printCapNodes();
-        void printPatternCaps();
-        void printLayerToCapNodeMap();
+        void printPatternCaps(FILE* stream = stdout);
+        void printLayerToCapNodeMap(FILE* stream = stdout);
         void printLayerToPatternCapMap(const char* msg = "");
         void printLayerList();
     };
