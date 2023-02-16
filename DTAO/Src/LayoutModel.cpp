@@ -4,6 +4,7 @@
 #include <string>
 #include <filesystem>
 #include <vector>
+#include <chrono>
 
 #include "LayoutPEXData.h"
 
@@ -25,10 +26,32 @@ namespace lve {
 			return;
 		}
 
+		std::chrono::system_clock::time_point start, end;
+		std::chrono::seconds run_time;
+
+		start = std::chrono::system_clock::now();
 		loadData(file_path);
+		end = std::chrono::system_clock::now();
+		run_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+		std::cout << "Run Time / LayoutModel / loadData [sec] : " << run_time << "\n";
+
+		start = std::chrono::system_clock::now();
 		makeCubeVertices();
+		end = std::chrono::system_clock::now();
+		run_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+		std::cout << "Run Time / LayoutModel / makeCubeVertices [sec] : " << run_time << "\n";
+
+		start = std::chrono::system_clock::now();
 		makeVertices();
+		end = std::chrono::system_clock::now();
+		run_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+		std::cout << "Run Time / LayoutModel / lmakeVertices [sec] : " << run_time << "\n";
+
+		start = std::chrono::system_clock::now();
 		makeIndices();
+		end = std::chrono::system_clock::now();
+		run_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+		std::cout << "Run Time / LayoutModel / makeIndices [sec] : " << run_time << "\n";
 	}
 
 	void LayoutModel::loadData(const std::string& file_path) {
