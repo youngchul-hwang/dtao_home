@@ -4,6 +4,8 @@
 
 // libs
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp> //vec3, vec4, ivec4, mat4
+#include <glm/gtc/type_ptr.hpp> //value_ptr
 
 // std
 #include <memory>
@@ -19,60 +21,15 @@ namespace lve {
         // Rotations correspond to Tait-bryan angles of Y(1), X(2), Z(3)
         // https://en.wikipedia.org/wiki/Euler_angles#Rotation_matrix
         glm::mat4 mat4() {
-            const float c3 = glm::cos(rotation.z);
-            const float s3 = glm::sin(rotation.z);
-            const float c2 = glm::cos(rotation.x);
-            const float s2 = glm::sin(rotation.x);
-            const float c1 = glm::cos(rotation.y);
-            const float s1 = glm::sin(rotation.y);
+            glm::mat4 glm_mat4 = glm::mat4{ 1 };
+            //glm_mat4 = glm::rotate(glm_mat4,  rotation.x, glm::vec3(1.0f, 0.0f, 0.0f));
+            //glm_mat4 = glm::rotate(glm_mat4, rotation.y, glm::vec3(0.0f, 1.0f, 0.0f));
+            //glm_mat4 = glm::rotate(glm_mat4, rotation.z, glm::vec3(1.0f, 0.0f, 1.0f));
+            glm_mat4 = glm::scale(glm_mat4, scale);
+            glm_mat4 = glm::translate(glm_mat4, translation);
+            
 
-            /*
-            //Tait-bryan angles of X(1), Y(2), Z(3)
-            return glm::mat4{
-                {
-                    scale.x * (c2 * c3),
-                    scale.x * (c1*s3 + c3*s1*s2),
-                    scale.x * (s1*s3 - c1*c3*s2),
-                    0.0f,
-                },
-                {
-                    scale.y * (-1*c2*s3),
-                    scale.y * (c1*c3-s1*s2*s3),
-                    scale.y * (c3*s1+c1*s2*s3),
-                    0.0f,
-                },
-                {
-                    scale.z * (s2),
-                    scale.z * (-1*c2*s1),
-                    scale.z * (c1*c2),
-                    0.0f,
-                },
-                {translation.x, translation.y, translation.z, 1.0f}
-            };
-            */
-
-            //Tait-bryan angles of Y(1), X(2), Z(3)
-            return glm::mat4{
-                {
-                    scale.x * (c1 * c3 + s1 * s2 * s3),
-                    scale.x * (c2 * s3),
-                    scale.x * (c1 * s2 * s3 - c3 * s1),
-                    0.0f,
-                },
-                {
-                    scale.y * (c3 * s1 * s2 - c1 * s3),
-                    scale.y * (c2 * c3),
-                    scale.y * (c1 * c3 * s2 + s1 * s3),
-                    0.0f,
-                },
-                {
-                    scale.z * (c2 * s1),
-                    scale.z * (-s2),
-                    scale.z * (c1 * c2),
-                    0.0f,
-                },
-                {translation.x, translation.y, translation.z, 1.0f} };
-
+            return glm_mat4;
         }
     };
 
