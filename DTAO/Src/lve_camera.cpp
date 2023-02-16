@@ -3,6 +3,9 @@
 // std
 #include <cassert>
 #include <limits>
+#include <glm/glm.hpp> //vec3, vec4, ivec4, mat4
+#include <glm/gtc/matrix_transform.hpp> //translate, rotate, scale, perspective 
+#include <glm/gtc/type_ptr.hpp> //value_ptr
 
 namespace lve {
 
@@ -18,14 +21,15 @@ void LveCamera::setOrthographicProjection(
 }
 
 void LveCamera::setPerspectiveProjection(float fovy, float aspect, float near, float far) {
-  assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
-  const float tanHalfFovy = tan(fovy / 2.f);
-  projectionMatrix = glm::mat4{0.0f};
-  projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
-  projectionMatrix[1][1] = 1.f / (tanHalfFovy);
-  projectionMatrix[2][2] = far / (far - near);
-  projectionMatrix[2][3] = 1.f;
-  projectionMatrix[3][2] = -(far * near) / (far - near);
+    projectionMatrix = glm::perspective(fovy, aspect, near, far);
+    //  assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
+    //  const float tanHalfFovy = tan(fovy / 2.f);
+    //  projectionMatrix = glm::mat4{0.0f};
+    //  projectionMatrix[0][0] = 1.f / (aspect * tanHalfFovy);
+    //  projectionMatrix[1][1] = 1.f / (tanHalfFovy);
+    //  projectionMatrix[2][2] = far / (far - near);
+    //  projectionMatrix[2][3] = 1.f;
+    //  projectionMatrix[3][2] = -(far * near) / (far - near);
 }
 
 void LveCamera::setViewYXZ(glm::vec3 position, glm::vec3 rotation) {
@@ -74,7 +78,13 @@ void LveCamera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::v
 }
 
 void LveCamera::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up) {
-  setViewDirection(position, target - position, up);
+    viewMatrix = glm::lookAt(position, target, up);
+    //setViewDirection(position, target - position, up);
+}
+
+void LveCamera::decomposeView(glm::mat4 viewMat) {
+    glm::decompose(viewMat, scale_d, rotation_d, translation_d, skew_d, perspective_d);
+    rotation_d = glm::conjugate(rotation_d);
 }
 
 
