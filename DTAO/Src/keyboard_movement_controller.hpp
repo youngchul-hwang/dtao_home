@@ -59,9 +59,9 @@ namespace lve {
 
         };
 
-        void moveInPlaneXZ(GLFWwindow* window, float dt, LveGameObject& gameObject);
+        void moveInPlaneXZ(GLFWwindow* window, float dt, std::vector<LveGameObject>& gameObjects);
         
-        void moveCamera(GLFWwindow* window, float dt, LveCamera& camera);
+        void moveCamera(GLFWwindow* window, float dt, LveCamera& camera, std::vector<LveGameObject>& gameObjects);
         CameraMoveKeyMappings camera_move_key;
 
         void visibleSetting(GLFWwindow* window, std::vector<LveGameObject>& gameObjects);
