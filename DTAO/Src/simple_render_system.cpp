@@ -127,7 +127,9 @@ namespace lve {
         std::vector<LveGameObject>& gameObjects,
         const LveCamera& camera) {
 
-        auto projectionView = camera.getProjection() * camera.getView();
+        auto proj = camera.getProjection();
+        proj[1][1] *= -1;
+        auto projectionView = proj * camera.getView();
         
         //std::cout << "\n\nRenderGameObjects :: object count : " << gameObjects.size() << std::endl;
         //lvePipelineForFace->bind(commandBuffer);
