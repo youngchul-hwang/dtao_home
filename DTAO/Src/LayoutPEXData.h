@@ -52,7 +52,7 @@ namespace lve {
 		PEXINFO_INDEX_DESCRIPTION = 18,
 		PEXINFO_INDEX_DEFULT = 999
 	};
-	
+
 	enum PEXResDirection {
 		RES_DIRECTION_VERTICAL = 0,
 		RES_DIRECTION_HORIZONTAL = 1,
@@ -112,7 +112,7 @@ namespace lve {
 	private:
 		std::string file_path;
 		std::vector<LayoutItem> patterns;
-		
+
 		double layout_min_x;
 		double layout_max_x;
 		double layout_min_y;
@@ -124,7 +124,7 @@ namespace lve {
 
 	public:
 		std::vector<LayoutItem>& getPatterns() { return this->patterns; }
-		
+
 		void loadLayoutData(const std::string file_path);
 		void clear() { this->patterns.clear(); };
 		void printLayoutData() {};
@@ -135,6 +135,7 @@ namespace lve {
 		double getMaxY() { return this->layout_max_y; }
 		double getMinZ() { return this->layout_min_z; }
 		double getMaxZ() { return this->layout_max_z; }
+		double getScale() { return this->scale; }
 
 	private:
 		void calculateScale();
@@ -198,7 +199,7 @@ namespace lve {
 		void print();
 	};
 
-	
+
 	class PEXResistorDataManager
 	{
 	public:
@@ -214,10 +215,10 @@ namespace lve {
 		double min_resistor_vertical;
 		double max_resistor_horizontal;
 		double min_resistor_horizontal;
-		
+
 	public:
 		std::vector<PEXResistor>& getResistors() { return this->resistors; }
-		
+
 		void loadData(const std::string file_path);
 		void clear();
 		void printData();
