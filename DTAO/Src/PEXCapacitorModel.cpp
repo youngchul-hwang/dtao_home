@@ -4,6 +4,9 @@
 #include <map>
 #include <vector>
 #include <math.h>
+#include <cstdio>
+#include <thread>
+#include <mutex>
 
 #include "LayoutPEXData.h"
 
@@ -39,6 +42,7 @@ namespace lve {
             this->pattern_caps.push_back(
                 pattern_cap(layout_item.pattern, layout_item.layer_number, layout_item.layer_datatype, 0.0, 0.0, 0)
             );
+
             this->layers.insert({ layout_item.layer_number, layout_item.layer_datatype });
         }        
     }
@@ -49,7 +53,7 @@ namespace lve {
 
         attachCapToPattern();
         normalizePatternCap();
-        printLayerToPatternCapMap("After Normalization Cap");
+        //printLayerToPatternCapMap("After Normalization Cap");
 
         makeCubeVertices();
         makeVertices();
@@ -112,12 +116,58 @@ namespace lve {
     void PEXCapacitorModel::attachCapToPattern() {
         makeLayerToCapNodeMap();
         makeLayerToPatternCapMap();
-
-        
-        //º´·ÄÃ³¸®·Î º¯°æÇØ¾ß ÇÔ
+                
+        /*
+        //ë³‘ë ¬ì²˜ë¦¬ë¡œ ë³€ê²½í•´ì•¼ í•¨
         //matchCapWithPattern(this->cap_layer_map, this->pattern_layer_map, 17, 0);
         for (auto& cur_layer : this->layers) {
             string layer = getLayerString(cur_layer.first, cur_layer.second);
+            map<string, vector<cap_node*>>::iterator it_layer_to_cap_node_map = this->layer_to_cap_node_map.find(layer);
+            map<string, vector<pattern_cap*>>::iterator it_layer_to_pattern_cap_map = this->layer_to_pattern_cap_map.find(layer);
+            if (it_layer_to_cap_node_map == this->layer_to_cap_node_map.end()
+                || it_layer_to_pattern_cap_map == this->layer_to_pattern_cap_map.end()) continue;
+
+            std::vector<cap_node*>& caps = it_layer_to_cap_node_map->second;
+            std::vector<pattern_cap*>& patterns = it_layer_to_pattern_cap_map->second;
+
+            matchCapWithPattern(caps, patterns);
+            //matchCapWithPattern(this->layer_to_cap_node_map, this->layer_to_pattern_cap_map, cur_layer.first, cur_layer.second);
+        }
+        */
+
+        makeLayersQueueForThreadJob();
+        for (int i = 0; i < this->num_threads; ++i) {
+            
+            this->threads.push_back(
+                std::thread(&PEXCapacitorModel::matchCapWithPatternThread, this, &this->layers_queue, &this->mutex_layers_queue));
+        }
+
+        for (auto& thread : this->threads)
+            thread.join();
+
+        /*
+        FILE* out_file = NULL; 
+        fopen_s(&out_file, "pattern_caps_info_thread.txt", "w");
+        if (out_file != NULL) {
+            printPatternCaps(out_file);
+            fclose(out_file);
+        }
+        else printPatternCaps(stdout);
+        */
+    }
+
+    void PEXCapacitorModel::matchCapWithPatternThread(std::queue<std::string>* layers, std::mutex* mutex_) {
+        while (1) {
+            mutex_->lock();
+            if (layers->empty()) {
+                mutex_->unlock();
+                break;
+            }
+
+            string layer = layers->front();
+            layers->pop();
+            mutex_->unlock();
+
             map<string, vector<cap_node*>>::iterator it_layer_to_cap_node_map = this->layer_to_cap_node_map.find(layer);
             map<string, vector<pattern_cap*>>::iterator it_layer_to_pattern_cap_map = this->layer_to_pattern_cap_map.find(layer);
             if (it_layer_to_cap_node_map == this->layer_to_cap_node_map.end()
@@ -125,9 +175,25 @@ namespace lve {
 
             std::vector<cap_node*>& caps = it_layer_to_cap_node_map->second;
             std::vector<pattern_cap*>& patterns = it_layer_to_pattern_cap_map->second;
+            //matchCapWithPattern(caps, patterns);
+            for (auto& cap : caps) {
+                for (auto& pattern : patterns) {
+                    if (isPatternIncludeCap(*pattern, *cap)) {
+                        pattern->cap_count++;
+                        pattern->cap_value += cap->value;
+                        break;
+                    }
+                }//for cap : caps
+            }//for pattern : patterns
 
-            matchCapWithPattern(caps, patterns);
-            //matchCapWithPattern(this->layer_to_cap_node_map, this->layer_to_pattern_cap_map, cur_layer.first, cur_layer.second);
+        }//while 1       
+    }
+
+
+    void PEXCapacitorModel::makeLayersQueueForThreadJob() {
+        for (auto& cur_layer : this->layers) {
+            string layer = getLayerString(cur_layer.first, cur_layer.second);
+            this->layers_queue.push(layer);
         }
     }
 
@@ -347,23 +413,24 @@ namespace lve {
         }
     }
 
-    void PEXCapacitorModel::printPatternCaps() {
-        printf("\n\n###############################################\n");
+    void PEXCapacitorModel::printPatternCaps(FILE* out_stream) {
+        fprintf(out_stream, "\n\n###############################################\n");
+        fprintf(out_stream, "### PatternCap List\n");
         for (auto& pattern : this->pattern_caps) {
-            printf("\nLayer = %u.%u, Cap count = %u, Total Caps = %e\n", 
+            fprintf(out_stream, "\nLayer = %u.%u, Cap count = %u, Total Caps = %e\n",
                 pattern.layer_number, pattern.layer_datatype, pattern.cap_count, pattern.cap_value);
-            printf("\tLeft ~ Right/Bottom ~ Top = %.6f ~ %.6f / %.6f ~ %.6f\n",
+            fprintf(out_stream, "\tLeft ~ Right/Bottom ~ Top = %.6f ~ %.6f / %.6f ~ %.6f\n",
                 pattern.pattern.minx, pattern.pattern.maxx, pattern.pattern.miny, pattern.pattern.maxy);
         }
     }    
 
-    void PEXCapacitorModel::printLayerToCapNodeMap() {
-        printf("\n\n\n####################################################\n");
-        printf("Cap Layer Map\n");
+    void PEXCapacitorModel::printLayerToCapNodeMap(FILE* out_stream) {
+        fprintf(out_stream, "\n\n\n####################################################\n");
+        fprintf(out_stream, "Cap Layer Map\n");
         for (auto& cur_item : this->layer_to_cap_node_map) {
-            printf("\nLayer = %s :: name / cap count / cap value \n", cur_item.first.c_str());
+            fprintf(out_stream, "\nLayer = %s :: name / cap count / cap value \n", cur_item.first.c_str());
             for (auto cur_cap : cur_item.second) {
-                printf("\t%s / %u / %e / %.6f, %.6f\n", 
+                fprintf(out_stream, "\t%s / %u / %e / %.6f, %.6f\n", 
                     cur_cap->name.c_str(), cur_cap->connected_count, cur_cap->value, cur_cap->x, cur_cap->y);
             }
         }
