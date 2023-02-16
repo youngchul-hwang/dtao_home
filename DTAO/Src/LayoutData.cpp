@@ -6,11 +6,18 @@
 #include <filesystem>
 #include <limits>
 #include <cstdio>
+#include <chrono>
 
 #include "rapidcsv.h"
 #include "utils.h"
 
 using namespace std;
+
+inline double coord_normalize(double in_value, double move, double scale) {
+    //return 2 * (in_value - min_value) / (max_value - min_value) - 1.0f;
+    //return (2 * (in_value - move) / (scale)-1.0f);
+    return 2 * ((in_value - move)*(scale)) -1.0f;
+}
 
 namespace lve {
 
@@ -43,13 +50,24 @@ namespace lve {
         
         this->scale = 1.0f / max_diff;
     }
+
 	void LayoutDataManager::loadLayoutData(const std::string file_path) {
         if (!filesystem::exists(file_path)) {
             cerr << "File is not exist : " << file_path << endl;
             return;
         }
 
+
+        std::chrono::system_clock::time_point start, end;
+        std::chrono::seconds run_time;
+
+        start = std::chrono::system_clock::now();
+
         rapidcsv::Document infile(file_path, rapidcsv::LabelParams(-1, -1));
+        
+        end = std::chrono::system_clock::now();
+        run_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+        std::cout << "Run Time / LayoutDataManager / loadLayoutData / rapidcsv::infile [sec] : " << run_time << "\n";
 
         std::vector<float> bbox = infile.GetRow<float>(0);
         this->layout_min_x = bbox[0];
@@ -65,6 +83,8 @@ namespace lve {
         cube_info cur_cube;
         int layer_number, layer_datatype;
         
+        start = std::chrono::system_clock::now();
+
         for (int i = 1; i < line_count; ++i) { //first line is bbox area
             vector<string> line = infile.GetRow<string>(i);
             //if (line[LAYOUTINFO_IDX_STRUCTURE] != "Poly") continue;
@@ -82,16 +102,20 @@ namespace lve {
             cur_cube.miny = std::stof(line[LAYOUTINFO_IDX_BOTTOM]);
             cur_cube.maxy = std::stof(line[LAYOUTINFO_IDX_TOP]);
 
-            //cur_rect.minx = coord_normalize(cur_rect.minx, bbox_min_x, scale);
-            //cur_rect.maxx = coord_normalize(cur_rect.maxx, bbox_min_x, scale);
-            //cur_rect.miny = coord_normalize(cur_rect.miny, bbox_min_y, scale);
-            //cur_rect.maxy = coord_normalize(cur_rect.maxy, bbox_min_y, scale);
-            //cur_rect.minz = coord_normalize(cur_rect.minz, bbox_min_z, scale);
-            //cur_rect.maxz = coord_normalize(cur_rect.maxz, bbox_min_z, scale);
+            //cur_cube.minx = coord_normalize(cur_cube.minx, this->layout_min_x, scale);
+            //cur_cube.maxx = coord_normalize(cur_cube.maxx, this->layout_min_x, scale);
+            //cur_cube.miny = coord_normalize(cur_cube.miny, this->layout_min_y, scale);
+            //cur_cube.maxy = coord_normalize(cur_cube.maxy, this->layout_min_y, scale);
+            //cur_cube.minz = coord_normalize(cur_cube.minz, this->layout_min_z, scale);
+            //cur_cube.maxz = coord_normalize(cur_cube.maxz, this->layout_min_z, scale);
 
             this->patterns.push_back(LayoutItem(cur_cube, layer_number, layer_datatype, LAYOUT_LAYER_TYPE::LAYOUT_LAYER_TYPE_DEFAULT));
             
         }
+
+        end = std::chrono::system_clock::now();
+        run_time = std::chrono::duration_cast<std::chrono::seconds>(end - start);
+        std::cout << "Run Time / LayoutDataManager / loadLayoutData / pattern push [sec] : " << run_time << "\n";
 
         infile.Clear();
 
