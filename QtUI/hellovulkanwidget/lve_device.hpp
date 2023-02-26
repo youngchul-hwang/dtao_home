@@ -74,7 +74,10 @@ public:
 
     VkPhysicalDeviceProperties properties;
 
+    void init();
+
 private:
+
     void createInstance();
     void setupDebugMessenger();
     void createSurface();

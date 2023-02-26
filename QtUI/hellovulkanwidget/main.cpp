@@ -93,25 +93,15 @@ int main(int argc, char *argv[])
     }
 
     vulkanWindow->setVulkanInstance(device);
+    qDebug()<< "\n\n\n$$$$$ Win surface type : " << vulkanWindow->surfaceType();
 
-    qDebug()<< "\n\n\n$$$$$Win surface type : " << vulkanWindow->surfaceType();
-
-    VkSurfaceKHR surface = inst.surfaceForWindow(vulkanWindow); //QVulkanInstance::surfaceForWindow(vulkanWindow);
-    if(surface == 0 ){
-        qDebug() << "\n$$$$$ Get Surface : Fail\n";
+    VkSurfaceKHR surface3 = inst.surfaceForWindow(vulkanWindow);
+    if(surface3 == 0 ){
+        qDebug() << "\n$$$$$ Get Surface3 : Fail\n";
     }
     else{
-        qDebug() << "\n$$$$$ Get Surface Success!!";
+        qDebug() << "\n$$$$$ Get Surface3 Success!!";
     }
-    //QVulkanInstance inst;
-    //inst.setVkInstance(device->getInstance());
-    //if (!inst.create()){
-    //        qFatal("\n\n\n$$$ Failed to create Vulkan instance: %d", inst.errorCode());
-    //}
-
-    //vulkanWindow->setVulkanInstance(&inst);
-    //inst.setLayers(QByteArrayList() << "VK_LAYER_LUNARG_standard_validation");
-    //vulkanWindow->setVulkanInstance(&inst);
 
     MainWindow mainWindow(vulkanWindow, messageLogWidget.data());
     QObject::connect(vulkanWindow, &LveWindow::vulkanInfoReceived, &mainWindow, &MainWindow::onVulkanInfoReceived);
@@ -120,13 +110,18 @@ int main(int argc, char *argv[])
     mainWindow.resize(1024, 768);
     mainWindow.show();
 
-    VkSurfaceKHR surface2 = inst.surfaceForWindow(vulkanWindow); //QVulkanInstance::surfaceForWindow(vulkanWindow);
-    if(surface2 == 0 ){
-        qDebug() << "\n$$$$$ Get Surface2 : Fail\n";
+    device->init();
+
+    VkSurfaceKHR surface4 = device->surfaceForWindow(vulkanWindow); //QVulkanInstance::surfaceForWindow(vulkanWindow);
+    if(surface4 == 0 ){
+        qDebug() << "\n$$$$$ Get Surface4 : Fail\n";
     }
     else{
-        qDebug() << "\n$$$$$ Get Surface2 Success!!";
+        qDebug() << "\n$$$$$ Get Surface4 Success!!";
     }
 
     return app.exec();
+
+    delete vulkanWindow;
+    delete device;
 }

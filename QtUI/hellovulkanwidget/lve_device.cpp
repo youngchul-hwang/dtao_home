@@ -1,4 +1,7 @@
+//#define VK_USE_PLATFORM_WIN32_KHR
+
 #include <vulkan/vulkan.h>
+//#include <vulkan/vulkan_win32.h>
 
 #include "lve_device.hpp"
 
@@ -53,8 +56,17 @@ void DestroyDebugUtilsMessengerEXT(
 LveDevice::LveDevice(LveWindow* window_) : window(window_) {
     createInstance();
     setupDebugMessenger();
-    createSurface();
+    //createSurface();
     //pickPhysicalDevice();
+    //createLogicalDevice();
+    //createCommandPool();
+}
+
+void LveDevice::init(){
+    //createInstance();
+    //setupDebugMessenger();
+    createSurface();
+    pickPhysicalDevice();
     //createLogicalDevice();
     //createCommandPool();
 }
@@ -117,11 +129,19 @@ void LveDevice::pickPhysicalDevice() {
     if (deviceCount == 0) {
         throw std::runtime_error("failed to find GPUs with Vulkan support!");
     }
-    std::cout << "Device count: " << deviceCount << std::endl;
+
+    qDebug() << "Device count: " << deviceCount;
+
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
+    qDebug() << "Devices count: " << devices.size();
+
     for (const auto &device : devices) {
+        VkPhysicalDeviceProperties prop_temp;
+        vkGetPhysicalDeviceProperties(device, &prop_temp);
+        qDebug() << "Device Name: " << prop_temp.deviceName;
+
         if (isDeviceSuitable(device)) {
             physicalDevice = device;
             break;
@@ -133,7 +153,7 @@ void LveDevice::pickPhysicalDevice() {
     }
 
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-    std::cout << "physical device: " << properties.deviceName << std::endl;
+    qDebug() << "physical device: " << properties.deviceName;
 }
 
 void LveDevice::createLogicalDevice() {
@@ -198,9 +218,9 @@ void LveDevice::createCommandPool() {
 
 
 void LveDevice::createSurface() {
-    //window.createWindowSurface(instance, &surface_);
-    VkSurfaceKHR surface = QVulkanInstance::surfaceForWindow(this->window);
-    if(surface == 0 ){
+    //window->createWindowSurface(instance, &surface_);
+    this->surface_ = this->surfaceForWindow(this->window);
+    if(this->surface_ == 0 ){
         qDebug() << "\n$$$$$ LveDevice::createSurface()\n"
                  << "\tFail\n";
     }
@@ -287,7 +307,9 @@ std::vector<const char *> LveDevice::getRequiredExtensions() {
     //    extensions.push_back(cur_ext.name.data());
     //}
 
-    extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    extensions.push_back("VK_KHR_surface");
+    extensions.push_back("VK_KHR_win32_surface");
+    //extensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
     if (enableValidationLayers) {
         extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);        
     }
