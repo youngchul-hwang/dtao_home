@@ -4,7 +4,6 @@
 #include <iostream>
 #include <vector>
 
-namespace lve{
 
 class LveWindow;
 class LveDevice;
@@ -27,16 +26,17 @@ public:
 private:
     void loadGameObjects();
 
-    //LveWindow lveWindow{WIDTH, HEIGHT, "Vulkan Tutorial"};
-    //LveDevice lveDevice{lveWindow};
-    //LveRenderer lveRenderer{lveWindow, lveDevice};
+    LveWindow* lveWindow;
+    LveDevice* lveDevice;
+    LveRenderer* lveRenderer;
+    SimpleRenderSystem* simpleRenderSystem;
+
     std::vector<LveGameObject> gameObjects;
-    //SimpleRenderSystem simpleRenderSystem{ lveDevice, lveRenderer.getSwapChainRenderPass(), this->gameObjects };
     LveCamera camera;
     KeyboardMovementController cameraController;
 
 
 
 };
-}//namespace lve
+
 #endif // DTAORENDERSYSTEM_H

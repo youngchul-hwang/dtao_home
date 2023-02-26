@@ -74,8 +74,8 @@ namespace lve {
         auto cube = LveGameObject::createGameObject();
 
         //Layout model
-        //std::string layout_info_file_path = "Data/layout_input_data.csv";
-        std::string layout_info_file_path = "Data/test_espin.csv";
+        std::string layout_info_file_path = "Data/layout_input_data.csv";
+        //std::string layout_info_file_path = "Data/test_espin.csv";
         std::shared_ptr<LayoutModel> layout_model
             = std::make_unique<LayoutModel>(this->lveDevice, MODEL_TYPE_LAYOUT, layout_info_file_path);
         layout_model->opacity = 0.5f;
