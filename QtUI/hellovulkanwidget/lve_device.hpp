@@ -23,7 +23,7 @@ struct QueueFamilyIndices {
     bool isComplete() { return graphicsFamilyHasValue && presentFamilyHasValue; }
 };
 
-class LveDevice : public QVulkanInstance {
+class LveDevice {
 public:
 #ifdef NDEBUG
     const bool enableValidationLayers = false;
@@ -31,7 +31,7 @@ public:
     const bool enableValidationLayers = true;
 #endif
 
-    LveDevice(LveWindow* window);
+    LveDevice(LveWindow* window, QVulkanInstance* qvk_inst);
     ~LveDevice();
 
     // Not copyable or movable
@@ -74,10 +74,7 @@ public:
 
     VkPhysicalDeviceProperties properties;
 
-    void init();
-
 private:
-
     void createInstance();
     void setupDebugMessenger();
     void createSurface();
@@ -99,6 +96,7 @@ private:
     VkDebugUtilsMessengerEXT debugMessenger;
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
     LveWindow * window;
+    QVulkanInstance * qvk_instance;
     VkCommandPool commandPool;
 
     VkDevice device_;
