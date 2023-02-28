@@ -1,12 +1,9 @@
 #include "lve_window.h"
 #include "hellovulkanwidget.h"
+#include "dtaorendersystem.h"
 
-LveWindow::LveWindow() : QVulkanWindow()
+LveWindow::LveWindow()
 {
-
-    //this->setSurfaceType(SurfaceType::VulkanSurface);
-    //this->create();
-
 }
 
 LveWindow::~LveWindow()
@@ -17,10 +14,11 @@ LveWindow::~LveWindow()
 QVulkanWindowRenderer *LveWindow::createRenderer()
 {
     //return new VulkanRenderer(this);
-    return (QVulkanWindowRenderer *)nullptr;
+    return new DtaoRenderSystem(this);
+    //return (QVulkanWindowRenderer *)nullptr;
 }
-
-void LveWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface){
-
-    //*surface = QVulkanInstance::surfaceForWindow(this->parent());
+/*
+inline VkExtent2D LveWindow::getExtent() {
+    return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
 }
+*/
