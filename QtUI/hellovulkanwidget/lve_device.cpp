@@ -53,23 +53,16 @@ void DestroyDebugUtilsMessengerEXT(
 }
 
 // class member functions
-LveDevice::LveDevice(LveWindow* window_) : window(window_) {
+LveDevice::LveDevice(LveWindow* window_, QVulkanInstance* qvk_instance_)
+    : window(window_), qvk_instance(qvk_instance_) {
     createInstance();
-    setupDebugMessenger();
-    //createSurface();
-    //pickPhysicalDevice();
-    //createLogicalDevice();
-    //createCommandPool();
-}
-
-void LveDevice::init(){
-    //createInstance();
     //setupDebugMessenger();
     createSurface();
     pickPhysicalDevice();
-    //createLogicalDevice();
-    //createCommandPool();
+    createLogicalDevice();
+    createCommandPool();
 }
+
 
 LveDevice::~LveDevice() {
     vkDestroyCommandPool(device_, commandPool, nullptr);
@@ -84,6 +77,9 @@ LveDevice::~LveDevice() {
 }
 
 void LveDevice::createInstance() {
+    this->instance = this->qvk_instance->vkInstance();
+    return;
+
     if (enableValidationLayers && !checkValidationLayerSupport()) {
         throw std::runtime_error("validation layers requested, but not available!");
     }
@@ -130,8 +126,6 @@ void LveDevice::pickPhysicalDevice() {
         throw std::runtime_error("failed to find GPUs with Vulkan support!");
     }
 
-    qDebug() << "Device count: " << deviceCount;
-
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
@@ -157,7 +151,13 @@ void LveDevice::pickPhysicalDevice() {
 }
 
 void LveDevice::createLogicalDevice() {
+    //this->device_ = this->window->device();
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
+    //vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
+    //vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
+    //return;
+
+    //QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
     std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
@@ -194,9 +194,15 @@ void LveDevice::createLogicalDevice() {
         createInfo.enabledLayerCount = 0;
     }
 
+    //VkDevice vk_device = this->window->device();
+    device_ = this->window->device();
+    /*
     if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS) {
         throw std::runtime_error("failed to create logical device!");
     }
+    */
+    qDebug() << "\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
+    qDebug() << "Created device : " << device_;
 
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
@@ -219,7 +225,7 @@ void LveDevice::createCommandPool() {
 
 void LveDevice::createSurface() {
     //window->createWindowSurface(instance, &surface_);
-    this->surface_ = this->surfaceForWindow(this->window);
+    this->surface_ = this->qvk_instance->surfaceForWindow(this->window);
     if(this->surface_ == 0 ){
         qDebug() << "\n$$$$$ LveDevice::createSurface()\n"
                  << "\tFail\n";
