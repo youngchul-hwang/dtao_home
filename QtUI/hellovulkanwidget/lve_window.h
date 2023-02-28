@@ -17,8 +17,7 @@ public:
 
 public:
     QVulkanWindowRenderer *createRenderer() override;
-
-    void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
+    //VkExtent2D getExtent();
 
 signals:
     void vulkanInfoReceived(const QString &text);
