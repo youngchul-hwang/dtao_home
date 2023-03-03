@@ -13,12 +13,8 @@ LveWindow::~LveWindow()
 
 QVulkanWindowRenderer *LveWindow::createRenderer()
 {
-    //return new VulkanRenderer(this);
+    qDebug() << "\n$$$$$ LveWindow::createRenderer()";
     return new DtaoRenderSystem(this);
-    //return (QVulkanWindowRenderer *)nullptr;
+
 }
-/*
-inline VkExtent2D LveWindow::getExtent() {
-    return { static_cast<uint32_t>(width), static_cast<uint32_t>(height) };
-}
-*/
+

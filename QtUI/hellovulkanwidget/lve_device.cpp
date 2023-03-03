@@ -14,47 +14,10 @@
 #include <unordered_set>
 
 
-// local callback functions
-static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
-        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-        VkDebugUtilsMessageTypeFlagsEXT messageType,
-        const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData,
-        void *pUserData) {
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
-
-    return VK_FALSE;
-}
-
-VkResult CreateDebugUtilsMessengerEXT(
-        VkInstance instance,
-        const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
-        const VkAllocationCallbacks *pAllocator,
-        VkDebugUtilsMessengerEXT *pDebugMessenger) {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                instance,
-                "vkCreateDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-        return func(instance, pCreateInfo, pAllocator, pDebugMessenger);
-    } else {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
-}
-
-void DestroyDebugUtilsMessengerEXT(
-        VkInstance instance,
-        VkDebugUtilsMessengerEXT debugMessenger,
-        const VkAllocationCallbacks *pAllocator) {
-    auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(
-                instance,
-                "vkDestroyDebugUtilsMessengerEXT");
-    if (func != nullptr) {
-        func(instance, debugMessenger, pAllocator);
-    }
-}
-
 // class member functions
 LveDevice::LveDevice(LveWindow* window_, QVulkanInstance* qvk_instance_)
     : window(window_), qvk_instance(qvk_instance_) {
+    qDebug() << "\n$$$$$ LveDevice()";
     createInstance();
     //setupDebugMessenger();
     createSurface();
@@ -65,58 +28,12 @@ LveDevice::LveDevice(LveWindow* window_, QVulkanInstance* qvk_instance_)
 
 
 LveDevice::~LveDevice() {
+    qDebug() << "\n$$$$$ ~LveDevice()";
     vkDestroyCommandPool(device_, commandPool, nullptr);
-    vkDestroyDevice(device_, nullptr);
-
-    if (enableValidationLayers) {
-        DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
-    }
-
-    vkDestroySurfaceKHR(instance, surface_, nullptr);
-    vkDestroyInstance(instance, nullptr);
 }
 
 void LveDevice::createInstance() {
     this->instance = this->qvk_instance->vkInstance();
-    return;
-
-    if (enableValidationLayers && !checkValidationLayerSupport()) {
-        throw std::runtime_error("validation layers requested, but not available!");
-    }
-
-    VkApplicationInfo appInfo = {};
-    appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-    appInfo.pApplicationName = "LittleVulkanEngine App";
-    appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.pEngineName = "No Engine";
-    appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    appInfo.apiVersion = VK_API_VERSION_1_0;
-
-    VkInstanceCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-    createInfo.pApplicationInfo = &appInfo;
-
-    auto extensions = getRequiredExtensions();
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
-    createInfo.ppEnabledExtensionNames = extensions.data();
-
-    VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-    if (enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
-
-        populateDebugMessengerCreateInfo(debugCreateInfo);
-        createInfo.pNext = (VkDebugUtilsMessengerCreateInfoEXT *)&debugCreateInfo;
-    } else {
-        createInfo.enabledLayerCount = 0;
-        createInfo.pNext = nullptr;
-    }
-
-    if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create instance!");
-    }
-
-    hasRequiredInstanceExtensions();
 }
 
 void LveDevice::pickPhysicalDevice() {
@@ -129,12 +46,9 @@ void LveDevice::pickPhysicalDevice() {
     std::vector<VkPhysicalDevice> devices(deviceCount);
     vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-    qDebug() << "Devices count: " << devices.size();
-
     for (const auto &device : devices) {
         VkPhysicalDeviceProperties prop_temp;
         vkGetPhysicalDeviceProperties(device, &prop_temp);
-        qDebug() << "Device Name: " << prop_temp.deviceName;
 
         if (isDeviceSuitable(device)) {
             physicalDevice = device;
@@ -147,63 +61,12 @@ void LveDevice::pickPhysicalDevice() {
     }
 
     vkGetPhysicalDeviceProperties(physicalDevice, &properties);
-    qDebug() << "physical device: " << properties.deviceName;
 }
 
 void LveDevice::createLogicalDevice() {
-    //this->device_ = this->window->device();
+
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-    //vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
-    //vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
-    //return;
-
-    //QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
-
-    std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
-
-    float queuePriority = 1.0f;
-    for (uint32_t queueFamily : uniqueQueueFamilies) {
-        VkDeviceQueueCreateInfo queueCreateInfo = {};
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = queueFamily;
-        queueCreateInfo.queueCount = 1;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
-        queueCreateInfos.push_back(queueCreateInfo);
-    }
-
-    VkPhysicalDeviceFeatures deviceFeatures = {};
-    deviceFeatures.samplerAnisotropy = VK_TRUE;
-
-    VkDeviceCreateInfo createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
-    createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
-    createInfo.pQueueCreateInfos = queueCreateInfos.data();
-
-    createInfo.pEnabledFeatures = &deviceFeatures;
-    createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
-    createInfo.ppEnabledExtensionNames = deviceExtensions.data();
-
-    // might not really be necessary anymore because device specific validation layers
-    // have been deprecated
-    if (enableValidationLayers) {
-        createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
-        createInfo.ppEnabledLayerNames = validationLayers.data();
-    } else {
-        createInfo.enabledLayerCount = 0;
-    }
-
-    //VkDevice vk_device = this->window->device();
     device_ = this->window->device();
-    /*
-    if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device_) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create logical device!");
-    }
-    */
-    qDebug() << "\n\n\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%";
-    qDebug() << "Created device : " << device_;
-
     vkGetDeviceQueue(device_, indices.graphicsFamily, 0, &graphicsQueue_);
     vkGetDeviceQueue(device_, indices.presentFamily, 0, &presentQueue_);
 }
@@ -224,15 +87,7 @@ void LveDevice::createCommandPool() {
 
 
 void LveDevice::createSurface() {
-    //window->createWindowSurface(instance, &surface_);
     this->surface_ = this->qvk_instance->surfaceForWindow(this->window);
-    if(this->surface_ == 0 ){
-        qDebug() << "\n$$$$$ LveDevice::createSurface()\n"
-                 << "\tFail\n";
-    }
-    else{
-        qDebug() << "\n$$$$$ LveDevice::createSurface() Success!!";
-    }
 }
 
 
@@ -254,29 +109,7 @@ bool LveDevice::isDeviceSuitable(VkPhysicalDevice device) {
             supportedFeatures.samplerAnisotropy;
 }
 
-void LveDevice::populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo) {
-    createInfo = {};
-    createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-    createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-            VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-    createInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-            VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-            VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-    createInfo.pfnUserCallback = debugCallback;
-    createInfo.pUserData = nullptr;  // Optional
-}
 
-void LveDevice::setupDebugMessenger() {
-    if (!enableValidationLayers) return;
-    VkDebugUtilsMessengerCreateInfoEXT createInfo;
-    populateDebugMessengerCreateInfo(createInfo);
-    if (CreateDebugUtilsMessengerEXT(instance, &createInfo, nullptr, &debugMessenger) != VK_SUCCESS) {
-        throw std::runtime_error("failed to set up debug messenger! sofe!");
-    }
-    else{
-        qDebug() << "\n\n\n$$$$$ LveDevice::setupDebugMessenger() Success!!";
-    }
-}
 
 bool LveDevice::checkValidationLayerSupport() {
     uint32_t layerCount;

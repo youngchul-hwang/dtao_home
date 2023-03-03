@@ -1,13 +1,14 @@
 #pragma once
 
 #include <QVulkanInstance>
-
-#include "vulkan/vulkan.h"
-#include "lve_window.h"
+#include <vulkan/vulkan.h>
 
 // std lib headers
 #include <string>
 #include <vector>
+
+#include "lve_window.h"
+
 
 struct SwapChainSupportDetails {
     VkSurfaceCapabilitiesKHR capabilities;
@@ -40,7 +41,7 @@ public:
     LveDevice(LveDevice &&) = delete;
     LveDevice &operator=(LveDevice &&) = delete;
 
-    VkCommandPool getCommandPool() { return commandPool; }
+    VkCommandPool getVkCommandPool() { return commandPool; }
     VkDevice device() { return device_; }
     VkSurfaceKHR surface() { return surface_; }
     VkQueue graphicsQueue() { return graphicsQueue_; }

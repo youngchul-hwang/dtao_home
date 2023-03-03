@@ -2,23 +2,19 @@
 #define DTAORENDERSYSTEM_H
 
 #include <QVulkanWindow>
+#include <QVulkanDeviceFunctions>
 #include <vulkan/vulkan.h>
 
 #include "lve_window.h"
 #include "lve_device.hpp"
-#include "lve_renderer.hpp"
+#include "lve_game_object.hpp"
+#include "simple_render_system.hpp"
 
 #include <iostream>
 #include <vector>
 
 
-class LveWindow;
-class LveDevice;
-class LveRenderer;
-class LveCamera{};
-class SimpleRenderSystem;
-class LveGameObject{};
-class KeyboardMovementController{};
+
 
 class DtaoRenderSystem : public QVulkanWindowRenderer
 {
@@ -38,22 +34,27 @@ public:
     void startNextFrame() override;
 
 private:
+    QVulkanDeviceFunctions *m_devFuncs = nullptr;
+
     void loadGameObjects();
 
-    LveWindow* lveWindow;
-    LveDevice* lveDevice;
-    LveRenderer* lveRenderer;
-    //SimpleRenderSystem* simpleRenderSystem;
+    LveWindow* lveWindow = nullptr;
+    LveDevice* lveDevice = nullptr;
+    SimpleRenderSystem* simpleRenderSystem = nullptr;
 
-    //std::vector<LveGameObject> gameObjects;
-    //LveCamera camera;
+    std::vector<LveGameObject> gameObjects{};
+    LveCamera camera{};
+
+    bool render_object_created = {false};
+
     //KeyboardMovementController cameraController;
 
 private:
     void createLveDevice();
     void deleteLveDevice();
-    void createLveRenderer();
-    void deleteLveRenderer();
+    void createSimpleRenderSystem();
+    void deleteSimpleRenderSystem();
+    void beginRenderPass(VkCommandBuffer command_buffer);
 
 };
 

@@ -54,6 +54,9 @@
 #include <QLibraryInfo>
 #include <QLoggingCategory>
 #include <QPointer>
+#include <QDir>
+#include <QFile>
+
 #include "hellovulkanwidget.h"
 
 #include "lve_window.h"
@@ -76,6 +79,20 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    qDebug() << QCoreApplication::applicationDirPath();
+
+//    std::string file_path = "Data/layout_input_data.csv";
+//    //QString file_path = "Data/layout_input_data.csv";
+
+//    if (!QFile::exists(file_path.c_str())) {
+//        qDebug() << "File is not exist : " << file_path.c_str();
+//        return 1;
+//    }
+//    else{
+//        qDebug() << "File exist : " << file_path.c_str();
+//        return 1;
+//    }
+
     messageLogWidget = new QPlainTextEdit(QLatin1String(QLibraryInfo::build()) + QLatin1Char('\n'));
     messageLogWidget->setReadOnly(true);
 
@@ -85,23 +102,14 @@ int main(int argc, char *argv[])
 
     QVulkanInstance inst;
     LveWindow *vulkanWindow = new LveWindow;
-    LveDevice *device = new LveDevice(vulkanWindow);
-    inst.setVkInstance(device->getInstance());
 
-    if (!device->create()){
-        qFatal("\n\n\n$$$ Failed to create Vulkan instance: %d", device->errorCode());
+
+    if (!inst.create()){
+        qFatal("\n\n$$$ Failed to create Vulkan instance: %d", inst.errorCode());
     }
 
-    vulkanWindow->setVulkanInstance(device);
-    qDebug()<< "\n\n\n$$$$$ Win surface type : " << vulkanWindow->surfaceType();
-
-    VkSurfaceKHR surface3 = inst.surfaceForWindow(vulkanWindow);
-    if(surface3 == 0 ){
-        qDebug() << "\n$$$$$ Get Surface3 : Fail\n";
-    }
-    else{
-        qDebug() << "\n$$$$$ Get Surface3 Success!!";
-    }
+    vulkanWindow->setVulkanInstance(&inst);
+    qDebug()<< "\n\n$$$$$ Win surface type : " << vulkanWindow->surfaceType();
 
     MainWindow mainWindow(vulkanWindow, messageLogWidget.data());
     QObject::connect(vulkanWindow, &LveWindow::vulkanInfoReceived, &mainWindow, &MainWindow::onVulkanInfoReceived);
@@ -110,18 +118,10 @@ int main(int argc, char *argv[])
     mainWindow.resize(1024, 768);
     mainWindow.show();
 
-    device->init();
 
-    VkSurfaceKHR surface4 = device->surfaceForWindow(vulkanWindow); //QVulkanInstance::surfaceForWindow(vulkanWindow);
-    if(surface4 == 0 ){
-        qDebug() << "\n$$$$$ Get Surface4 : Fail\n";
-    }
-    else{
-        qDebug() << "\n$$$$$ Get Surface4 Success!!";
-    }
+
+
 
     return app.exec();
 
-    delete vulkanWindow;
-    delete device;
 }
